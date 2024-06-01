@@ -2,7 +2,7 @@
 import {defineStore} from "pinia";
 import router from "@/router";
 
-const API_URL = "http://localhost:8080/v1"
+const API_URL = "http://129.159.63.39:8080/v1"
 
 export const useUserStore = defineStore("user", {
   state: () => ({
