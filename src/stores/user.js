@@ -9,7 +9,7 @@ export const useUserStore = defineStore("user", {
     user: {
       username: null,
       accessToken: null,
-      role: null
+      role: null,
     },
     client: {
       id: null,
@@ -22,6 +22,7 @@ export const useUserStore = defineStore("user", {
     }
   }),
   getters: {
+    // General Getters.
     isAuthenticated() {
       return !!this.user.accessToken
     },
@@ -57,8 +58,9 @@ export const useUserStore = defineStore("user", {
         role: data.role
       }
 
+      // Esse usuário é um cliente, por tanto obtém os dados pessoais.
       if (data.role === 'USER') {
-        await this.getClientDetails()
+        await this.getClientSelfDetails()
           .then(value => {
             if (!value.ok) {
               throw new Error("Login ou Senha incorretos!");
@@ -74,10 +76,11 @@ export const useUserStore = defineStore("user", {
     },
     async signOut() {
       this.user = {};
-      this.client = {};
+      this.user.client = {};
       router.push('/');
     },
-    async getClientDetails() {
+    // Client Actions.
+    async getClientSelfDetails() {
       return await fetch(`${API_URL}/clients/details`, {
         method: "GET",
         headers: {
@@ -85,6 +88,61 @@ export const useUserStore = defineStore("user", {
           "Authorization": `Bearer ${this.user.accessToken}`
         },
       });
+    },
+    // Admin Actions.
+    async GetAllClientList() {
+      try {
+        const response = await fetch(`${API_URL}/clients`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${this.user.accessToken}`
+          },
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message);
+        }
+        return data;
+      } catch (error) {
+        console.error('Error fetching client list:', error);
+        return []; // Retorna um vetor vazio em caso de erro
+      }
+    },
+    async updateClient(clientId, clientData) {
+      const response = await fetch(`${API_URL}/clients/${clientId}/update`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${this.user.accessToken}`
+        },
+        body: JSON.stringify(clientData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      return data;
+    },
+    async registerClient(clientData) {
+      const response = await fetch(`${API_URL}/clients/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${this.user.accessToken}`
+        },
+        body: JSON.stringify(clientData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      return data;
     }
   },
 });
