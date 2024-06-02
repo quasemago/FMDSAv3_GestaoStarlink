@@ -76,7 +76,7 @@ export const useUserStore = defineStore("user", {
     },
     async signOut() {
       this.user = {};
-      this.user.client = {};
+      this.client = {};
       router.push('/');
     },
     // Client Actions.
