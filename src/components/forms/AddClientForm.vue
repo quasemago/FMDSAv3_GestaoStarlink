@@ -1,60 +1,8 @@
-<script setup>
-import {reactive} from 'vue';
-import {useUserStore} from "@/stores/user";
-
-const userStore = useUserStore();
-const emit = defineEmits(['form:cancel']);
-
-// Regras do formulário
-const formRules = reactive({
-  username: [
-    (value) => {
-      if (value) return true;
-      return 'Username required';
-    }
-  ]
-});
-
-const newUser = reactive({
-  account: {
-    email: '',
-    password: ''
-  },
-  name: '',
-  tel: '',
-  address: '',
-  birthDate: '',
-  gender: '',
-  profilePicture: ''
-});
-
-// Manipuladores de eventos
-const handleSaveItem = async (e) => {
-  e.preventDefault();
-
-  const data = {...newUser};
-  console.log(data);
-
-  try {
-    await userStore.registerClient(data);
-    console.log("criado")
-  } catch (error) {
-    console.error(error);
-  }
-
-  handleCancelEdit();
-};
-
-const handleCancelEdit = () => {
-  emit('form:cancel');
-};
-</script>
-
 <template>
   <VCard width="640px">
     <VToolbar tag="div">
       <VToolbarTitle>Cadastrar Cliente</VToolbarTitle>
-      <VBtn icon="mdi-close" @click="$emit('form:cancel')"></VBtn>
+      <VBtn icon="mdi-close" @click="handleCancelEdit"></VBtn>
     </VToolbar>
     <VCardText>
       <VForm>
@@ -62,29 +10,27 @@ const handleCancelEdit = () => {
           <VCol cols="12">
             <VTextField
               label="Email"
-              v-model="newUser.account.email"
+              v-model="addNewUser.account.email"
               :rules="formRules.username"
               variant="outlined"
               color="primary"
-              name="email"
               type="email"
             />
           </VCol>
           <VCol cols="12">
             <VTextField
               label="Senha"
-              v-model="newUser.account.password"
+              v-model="addNewUser.account.password"
               :rules="formRules.username"
               variant="outlined"
               color="primary"
-              name="password"
               type="password"
             />
           </VCol>
           <VCol cols="12">
             <VTextField
               label="Nome"
-              v-model="newUser.name"
+              v-model="addNewUser.name"
               :rules="formRules.username"
               variant="outlined"
               color="primary"
@@ -94,7 +40,7 @@ const handleCancelEdit = () => {
           <VCol cols="12">
             <VTextField
               label="Telefone"
-              v-model="newUser.tel"
+              v-model="addNewUser.tel"
               :rules="formRules.username"
               variant="outlined"
               color="primary"
@@ -104,7 +50,7 @@ const handleCancelEdit = () => {
           <VCol cols="12">
             <VTextField
               label="Endereço"
-              v-model="newUser.address"
+              v-model="addNewUser.address"
               :rules="formRules.username"
               variant="outlined"
               color="primary"
@@ -114,7 +60,7 @@ const handleCancelEdit = () => {
           <VCol cols="12">
             <VTextField
               label="Data de Nascimento"
-              v-model="newUser.birthDate"
+              v-model="addNewUser.birthDate"
               variant="outlined"
               color="primary"
               name="birthDate"
@@ -123,7 +69,7 @@ const handleCancelEdit = () => {
           <VCol cols="12">
             <VTextField
               label="Gênero"
-              v-model="newUser.gender"
+              v-model="addNewUser.gender"
               :rules="formRules.username"
               variant="outlined"
               color="primary"
@@ -133,7 +79,7 @@ const handleCancelEdit = () => {
           <VCol cols="12">
             <VTextField
               label="Foto do Perfil"
-              v-model="newUser.profilePicture"
+              v-model="addNewUser.profilePicture"
               :rules="formRules.username"
               variant="outlined"
               color="primary"
@@ -149,3 +95,70 @@ const handleCancelEdit = () => {
     </VCardActions>
   </VCard>
 </template>
+
+<script setup>
+import { ref, watch } from 'vue';
+import { useUserStore } from "@/stores/user";
+
+const userStore = useUserStore();
+const emit = defineEmits(['form:cancel']);
+const props = defineProps({
+  showDialog: {
+    type: Boolean,
+    required: true
+  }
+});
+
+const initialUserState = () => ({
+  account: {
+    email: '',
+    password: ''
+  },
+  name: '',
+  tel: '',
+  address: '',
+  birthDate: '',
+  gender: '',
+  profilePicture: ''
+});
+
+const formRules = ref({
+  username: [
+    (value) => !!value || 'Campo obrigatório'
+  ]
+});
+
+const addNewUser = ref(initialUserState());
+
+// Manipuladores de eventos
+const handleSaveItem = async (e) => {
+  e.preventDefault();
+
+  const data = { ...addNewUser.value };
+
+  try {
+    await userStore.registerClient(data);
+    console.log("criado");
+  } catch (error) {
+    console.error(error);
+  }
+
+  handleCancelEdit();
+};
+
+const handleCancelEdit = () => {
+  resetForm();
+  emit('form:cancel');
+};
+
+const resetForm = () => {
+  Object.assign(addNewUser.value, initialUserState());
+};
+
+// Redefine o formulário quando o diálogo é fechado
+watch(() => props.showDialog, (newVal) => {
+  if (!newVal) {
+    resetForm();
+  }
+});
+</script>
