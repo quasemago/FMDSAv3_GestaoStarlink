@@ -24,12 +24,12 @@
                 <VIcon>mdi-refresh</VIcon>
               </v-btn>
               <v-btn icon @click="handleCreateItem" density="comfortable">
-                <VIcon>mdi-plus</VIcon>
+                <v-icon>mdi-plus</v-icon>
               </v-btn>
             </v-toolbar>
           </v-card-item>
-          <VCardText class="pa-0 pb-5">
-            <VDivider/>
+          <v-card-text class="pa-0 pb-5">
+            <v-divider />
             <v-data-table
               :headers="headers"
               :items="filteredUsers"
@@ -40,26 +40,26 @@
               show-select
             >
               <template #item.profilePicture="{ item }">
-                <VAvatar :color="item.profilePicture ? '' : 'surface-variant'" class="ma-3">
+                <v-avatar :color="item.profilePicture ? '' : 'surface-variant'" class="ma-3">
                   <VImg :src="String(item.profilePicture)" v-if="item.profilePicture"/>
                   <span v-else>{{ computeAvatarText(item.username) }}</span>
-                </VAvatar>
+                </v-avatar>
               </template>
               <template #item.action="{ item }">
-                <VBtn variant="plain" density="compact" icon="mdi-pencil-outline" @click="handleEditItem(item)"></VBtn>
-                <VBtn variant="plain" density="compact" icon="mdi-trash-can-outline"></VBtn>
+                <v-btn variant="plain" density="compact" icon="mdi-pencil-outline" @click="handleEditItem(item)"></v-btn>
+                <v-btn variant="plain" density="compact" icon="mdi-trash-can-outline"></v-btn>
               </template>
             </v-data-table>
-          </VCardText>
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
-    <VDialog v-model="showEditDialog" width="auto" eager>
+    <v-dialog v-model="showEditDialog" width="auto" eager>
       <EditClientForm :user="selectedUser" @form:cancel="showEditDialog = false" />
-    </VDialog>
-    <VDialog v-model="showAddDialog" width="auto" eager>
-      <AddClientForm @form:cancel="showAddDialog = false" />
-    </VDialog>
+    </v-dialog>
+    <v-dialog v-model="showAddDialog" width="auto" eager>
+      <AddClientForm :show-dialog="showAddDialog" @form:cancel="showAddDialog = false" />
+    </v-dialog>
   </v-container>
 </template>
 
