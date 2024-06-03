@@ -120,12 +120,10 @@ export const useUserStore = defineStore("user", {
         body: JSON.stringify(clientData),
       });
 
-      const data = await response.json();
       if (!response.ok) {
+        const data = await response.json();
         throw new Error(data.message);
       }
-
-      return data;
     },
     async registerClient(clientData) {
       const response = await fetch(`${API_URL}/clients/create`, {
@@ -137,12 +135,10 @@ export const useUserStore = defineStore("user", {
         body: JSON.stringify(clientData),
       });
 
-      const data = await response.json();
       if (!response.ok) {
+        const data = await response.json();
         throw new Error(data.message);
       }
-
-      return data;
     },
     async deleteClient(clientId) {
       const response = await fetch(`${API_URL}/clients/${clientId}/delete`, {

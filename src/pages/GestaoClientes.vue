@@ -39,13 +39,13 @@
               hover
               show-select
             >
-              <template #item.profilePicture="{ item }">
+              <template v-slot:[`item.profilePicture`]="{ item }">
                 <v-avatar :color="item.profilePicture ? '' : 'surface-variant'" class="ma-3">
                   <VImg :src="String(item.profilePicture)" v-if="item.profilePicture"/>
                   <span v-else>{{ computeAvatarText(item.username) }}</span>
                 </v-avatar>
               </template>
-              <template #item.action="{ item }">
+              <template v-slot:[`item.action`]="{ item }">
                 <v-btn variant="plain" density="compact" icon="mdi-pencil-outline"
                        @click="handleEditItem(item)"></v-btn>
                 <v-btn variant="plain" density="compact" icon="mdi-trash-can-outline"
@@ -184,7 +184,6 @@ const handleDeleteItemConfirm = async () => {
 const handleClear = () => {
 };
 </script>
-
 
 <style lang="scss">
 .search {

@@ -15,7 +15,7 @@
             <VTextField
               label="Email"
               v-model="addNewUser.account.email"
-              :rules="formRules.username"
+              :rules="formRules.email"
               variant="outlined"
               color="primary"
               type="email"
@@ -131,6 +131,10 @@ const initialUserState = () => ({
 const formRules = ref({
   username: [
     (value) => !!value || 'Campo obrigatório'
+  ],
+  email: [
+    (value) => !!value || 'Campo obrigatório',
+    (value) => /.+@.+\..+/.test(value) || 'E-mail inválido'
   ]
 });
 
