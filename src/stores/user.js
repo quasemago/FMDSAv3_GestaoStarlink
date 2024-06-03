@@ -143,6 +143,19 @@ export const useUserStore = defineStore("user", {
       }
 
       return data;
+    },
+    async deleteClient(clientId) {
+      const response = await fetch(`${API_URL}/clients/${clientId}/delete`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${this.user.accessToken}`
+        },
+      });
+      if (response.status !== 204) {
+        const data = await response.json();
+        throw new Error(data.message);
+      }
     }
   },
 });

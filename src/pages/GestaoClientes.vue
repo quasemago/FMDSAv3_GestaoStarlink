@@ -29,7 +29,7 @@
             </v-toolbar>
           </v-card-item>
           <v-card-text class="pa-0 pb-5">
-            <v-divider />
+            <v-divider/>
             <v-data-table
               :headers="headers"
               :items="filteredUsers"
@@ -46,8 +46,10 @@
                 </v-avatar>
               </template>
               <template #item.action="{ item }">
-                <v-btn variant="plain" density="compact" icon="mdi-pencil-outline" @click="handleEditItem(item)"></v-btn>
-                <v-btn variant="plain" density="compact" icon="mdi-trash-can-outline"></v-btn>
+                <v-btn variant="plain" density="compact" icon="mdi-pencil-outline"
+                       @click="handleEditItem(item)"></v-btn>
+                <v-btn variant="plain" density="compact" icon="mdi-trash-can-outline"
+                       @click="handleDeleteItem(item)"></v-btn>
               </template>
             </v-data-table>
           </v-card-text>
@@ -55,10 +57,22 @@
       </v-col>
     </v-row>
     <v-dialog v-model="showEditDialog" width="auto" eager>
-      <EditClientForm :user="selectedUser" @form:cancel="showEditDialog = false" />
+      <EditClientForm :user="selectedUser" @form:cancel="showEditDialog = false" @form:saved="handleItemEdited"/>
     </v-dialog>
     <v-dialog v-model="showAddDialog" width="auto" eager>
-      <AddClientForm :show-dialog="showAddDialog" @form:cancel="showAddDialog = false" />
+      <AddClientForm :show-dialog="showAddDialog" @form:cancel="showAddDialog = false" @form:saved="handleItemSaved"/>
+    </v-dialog>
+    <v-dialog v-model="showDeleteDialog" width="auto" eager>
+      <v-card>
+        <v-card-title class="headline">Confirmar Exclusão</v-card-title>
+        <v-card-text>
+          Tem certeza de que deseja excluir este cliente?
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="error" text @click="handleDeleteItemConfirm()">Confirmar</v-btn>
+          <v-btn text @click="showDeleteDialog = false">Cancelar</v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
   </v-container>
 </template>
@@ -74,6 +88,7 @@ const itemsPerPage = ref(10);
 const showFilter = ref(true);
 const showAddDialog = ref(false);
 const showEditDialog = ref(false);
+const showDeleteDialog = ref(false);
 const searchText = ref('');
 const originalUsers = ref([]);
 const filteredUsers = ref([]);
@@ -87,6 +102,8 @@ const selectedUser = reactive({
   gender: '',
   profilePicture: null
 });
+
+const selectedUserIdToDelete = ref(null);
 
 // search filters
 const headers = reactive([
@@ -115,36 +132,56 @@ const loadData = async () => {
     })
   loading.value = false;
 };
+
 const handleApplyFilter = () => {
   filteredUsers.value = originalUsers.value;
   if (searchText.value) {
-    console.log("chegou aqui")
     filteredUsers.value = originalUsers.value.filter((user) => {
       return user.name.toLowerCase().includes(searchText.value.toLowerCase());
     });
   }
 };
-const handleRefreshItem = () => {
+
+const handleRefreshItem = async () => {
   searchText.value = '';
-  loadData();
+  await loadData();
 };
+
 const handleCreateItem = () => {
   showAddDialog.value = true;
 };
+const handleItemSaved = async () => {
+  await loadData();
+  showAddDialog.value = false;
+};
+
 const handleEditItem = (row) => {
   Object.assign(selectedUser, row);
   showEditDialog.value = true;
 };
-
-const handleDeleteItem = () => {
-  // showDialog.value = true;
-  console.log('delete');
+const handleItemEdited = async () => {
+  await loadData();
+  showEditDialog.value = false;
 };
+
+const handleDeleteItem = (row) => {
+  showDeleteDialog.value = true;
+  selectedUserIdToDelete.value = row.id;
+  console.log(selectedUserIdToDelete.value)
+};
+const handleDeleteItemConfirm = async () => {
+  try {
+    await userStore.deleteClient(selectedUserIdToDelete.value);
+    await loadData();
+    console.log("deletado");
+  } catch (error) {
+    console.log(error);
+  }
+  showDeleteDialog.value = false;
+  selectedUserIdToDelete.value = null;
+}
+
 const handleClear = () => {
-
-};
-const handleResetFilter = () => {
-  loadData();
 };
 </script>
 
