@@ -12,9 +12,8 @@
             type="email"
             color="primary"
             label="Usuário"
-            name="email"
             :rules="emailRules"
-            v-model="formModel.email"
+            v-model="loginFormModel.email"
           />
         </v-col>
         <v-col cols="12">
@@ -24,7 +23,7 @@
             color="primary"
             label="Senha"
             :rules="passwordRules"
-            v-model="formModel.password"
+            v-model="loginFormModel.password"
           />
         </v-col>
         <v-col cols="12" class="pt-0">
@@ -36,7 +35,7 @@
 </template>
 
 <script setup>
-import {reactive, ref} from 'vue';
+import {ref} from 'vue';
 import {useUserStore} from '@/stores/user';
 
 const userStore = useUserStore();
@@ -53,7 +52,7 @@ const passwordRules = [
   (v) => !!v || 'Campo obrigatório'
 ];
 
-const formModel = reactive({
+const loginFormModel = ref({
   email: '',
   password: ''
 });
@@ -62,19 +61,20 @@ const errorLogin = ref(false);
 const errorLoginMessage = ref('');
 
 const submitLoginForm = async () => {
-  if (formLoginValid.value === true) {
+  if (formLoginValid.value) {
     submitting.value = true;
     try {
-      await userStore.signIn(formModel);
-      submitting.value = false;
+      await userStore.signIn(loginFormModel.value);
+      loginFormModel.value = {email: '', password: ''};
+      loginForm.value.reset();
     } catch (error) {
-      console.log(error);
+      console.error(error);
       await userStore.signOut();
-      submitting.value = false;
       errorLogin.value = true;
-      errorLoginMessage.value = error;
+      errorLoginMessage.value = error.message || 'Erro ao realizar login';
+    } finally {
+      submitting.value = false;
     }
-    loginForm.value.reset();
   }
 };
 </script>
