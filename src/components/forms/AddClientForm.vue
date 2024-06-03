@@ -1,4 +1,8 @@
 <template>
+  <v-snackbar v-model="successSaveMessage" color="success" timeout="3000" location="top">
+    <v-icon icon="mdi-check-circle"></v-icon>
+    Cliente cadastrado com sucesso!
+  </v-snackbar>
   <VCard width="640px">
     <VToolbar tag="div">
       <VToolbarTitle>Cadastrar Cliente</VToolbarTitle>
@@ -101,13 +105,15 @@ import { ref, watch } from 'vue';
 import { useUserStore } from "@/stores/user";
 
 const userStore = useUserStore();
-const emit = defineEmits(['form:cancel']);
+const emit = defineEmits(['form:cancel', 'form:saved']);
 const props = defineProps({
   showDialog: {
     type: Boolean,
     required: true
   }
 });
+
+const successSaveMessage = ref(false);
 
 const initialUserState = () => ({
   account: {
@@ -138,7 +144,8 @@ const handleSaveItem = async (e) => {
 
   try {
     await userStore.registerClient(data);
-    console.log("criado");
+    successSaveMessage.value = true;
+    emit('form:saved')
   } catch (error) {
     console.error(error);
   }

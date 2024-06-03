@@ -1,60 +1,8 @@
-<script setup>
-import {reactive, watch} from 'vue';
-import {useUserStore} from "@/stores/user";
-
-const userStore = useUserStore();
-
-// Definindo as propriedades e emitindo eventos
-const props = defineProps({
-  user: {
-    type: Object,
-    required: true
-  }
-});
-const emit = defineEmits(['form:cancel']);
-
-// Regras do formulário
-const formRules = reactive({
-  username: [
-    (value) => {
-      if (value) return true;
-      return 'Username required';
-    }
-  ]
-});
-
-// Modelo reativo do formulário
-const formModel = reactive({
-  ...props.user
-});
-
-// Manipuladores de eventos
-const handleSaveItem = async (e) => {
-  e.preventDefault();
-
-  const data = {...formModel};
-
-  try {
-    await userStore.updateClient(data.id, data);
-    console.log("atualizado")
-  } catch (error) {
-    console.error(error);
-  }
-
-  handleCancelEdit();
-};
-
-const handleCancelEdit = () => {
-  emit('form:cancel');
-};
-
-// Assistindo mudanças nas propriedades
-watch(props, () => {
-  Object.assign(formModel, props.user);
-});
-</script>
-
 <template>
+  <v-snackbar v-model="successEditMessage" color="success" timeout="3000" location="top">
+    <v-icon icon="mdi-check-circle"></v-icon>
+    Cliente editado com sucesso!
+  </v-snackbar>
   <VCard width="640px">
     <VToolbar tag="div">
       <VToolbarTitle>Editar Cliente</VToolbarTitle>
@@ -131,3 +79,61 @@ watch(props, () => {
     </VCardActions>
   </VCard>
 </template>
+
+<script setup>
+import {reactive, ref, watch} from 'vue';
+import {useUserStore} from "@/stores/user";
+
+const userStore = useUserStore();
+const successEditMessage = ref(false);
+
+// Definindo as propriedades e emitindo eventos
+const props = defineProps({
+  user: {
+    type: Object,
+    required: true
+  }
+});
+const emit = defineEmits(['form:cancel', 'form:saved']);
+
+// Regras do formulário
+const formRules = reactive({
+  username: [
+    (value) => {
+      if (value) return true;
+      return 'Username required';
+    }
+  ]
+});
+
+// Modelo reativo do formulário
+const formModel = reactive({
+  ...props.user
+});
+
+// Manipuladores de eventos
+const handleSaveItem = async (e) => {
+  e.preventDefault();
+
+  const data = {...formModel};
+
+  try {
+    await userStore.updateClient(data.id, data);
+    successEditMessage.value = true;
+    emit('form:saved')
+  } catch (error) {
+    console.error(error);
+  }
+
+  handleCancelEdit();
+};
+
+const handleCancelEdit = () => {
+  emit('form:cancel');
+};
+
+// Assistindo mudanças nas propriedades
+watch(props, () => {
+  Object.assign(formModel, props.user);
+});
+</script>
