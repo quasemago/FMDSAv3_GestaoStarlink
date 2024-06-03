@@ -1,6 +1,6 @@
 {
-  "name": "Aula10",
-  "version": "0.0.0",
+  "name": "StarlinkGestao_Frontend",
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
