@@ -175,7 +175,7 @@ export const useUserStore = defineStore("user", {
       return data;
     },
     async deleteClientHistoryType(clientId, historyType) {
-      const response = await fetch(`${API_URL}/v1/history/${clientId}/${historyType}`, {
+      const response = await fetch(`${API_URL}/history/${clientId}/${historyType}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
