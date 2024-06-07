@@ -34,8 +34,6 @@ const userStore = useUserStore();
 const items = [
   {text: 'Dashboard', icon: 'mdi-view-dashboard', to: '/dashboard'},
   {text: 'Gestão de Clientes', icon: 'mdi-cog-box', to: '/gestaoclientes', access: 'ADMIN'},
-  {text: 'Consulta de Histórico', icon: 'mdi-cog-box', to: '/consultarhistorico', access: 'ADMIN'},
-  {text: 'Relatório de Clientes', icon: 'mdi-chart-box', to: '/relatorioclientes', access: 'ADMIN'}
 ]
 const filteredItems = computed(() => {
   return items.filter(item => !item.access || item.access === userStore.user.role);

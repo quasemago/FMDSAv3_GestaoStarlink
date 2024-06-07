@@ -2,7 +2,7 @@
   <v-dialog v-model="modalVisible" max-width="800px">
     <v-card>
       <v-card-title class="d-flex justify-space-between">
-        <span>Histórico de{{ getTranslatedHistoryType(historyType) }}</span>
+        <span>Histórico de {{ getTranslatedHistoryType(historyType) }}</span>
         <v-btn icon @click="confirmDeleteHistory">
           <v-icon>mdi-delete</v-icon>
         </v-btn>
@@ -29,9 +29,10 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
-import { useUserStore } from "@/stores/user";
+import {onMounted, ref, watch} from 'vue';
+import {useUserStore} from "@/stores/user";
 
+const userStore = useUserStore();
 const props = defineProps({
   clientId: {
     type: String,
@@ -41,14 +42,14 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  value: {
+  visible: {
     type: Boolean,
     required: true,
   },
 });
 
-const emit = defineEmits(['input']);
-const modalVisible = ref(props.value);
+const emit = defineEmits(['update:visible']);
+const modalVisible = ref(props.visible);
 const headers = ref([]);
 const historyData = ref([]);
 const confirmDelete = ref(false);
@@ -58,104 +59,93 @@ const historyTypeTranslations = {
   location: 'Localização',
   interests: 'Interesse',
   purchases: 'Compras',
-  sessions: 'Sessão'
+  sessions: 'Sessão',
 };
 
 const getTranslatedHistoryType = (type) => {
   return historyTypeTranslations[type] || type;
 };
 
-watch(() => props.value, (val) => {
+watch(() => props.visible, (val) => {
   modalVisible.value = val;
 });
 
 watch(modalVisible, (val) => {
-  emit('input', val);
+  emit('update:visible', val);
+});
+
+watch([() => props.clientId, () => props.historyType], async ([newClientId, newHistoryType]) => {
+  await fetchHistoryData(newClientId, newHistoryType);
 });
 
 onMounted(async () => {
-  switch (props.historyType) {
+  await fetchHistoryData(props.clientId, props.historyType);
+});
+
+async function fetchHistoryData(clientId, historyType) {
+  if (!clientId || clientId === '') {
+    return;
+  }
+  switch (historyType) {
     case 'browsing':
       headers.value = [
-        { title: 'Id', value: 'id', sortable: true },
-        { title: 'Url', value: 'url', sortable: true },
+        {title: 'Id', value: 'id', sortable: true},
+        {title: 'Url', value: 'url', sortable: true},
       ];
       break;
     case 'location':
       headers.value = [
-        { title: 'Id', value: 'id' },
-        { title: 'Localização', value: 'geoLocation' },
-        { title: 'Endereço_IP', value: 'ipAddress' },
+        {title: 'Id', value: 'id'},
+        {title: 'Localização', value: 'geoLocation'},
+        {title: 'Endereço IP', value: 'ipAddress'},
       ];
       break;
     case 'interests':
       headers.value = [
-        { title: 'Id', value: 'id' },
-        { title: 'Interesse', value: 'keyword' },
+        {title: 'Id', value: 'id'},
+        {title: 'Interesse', value: 'keyword'},
       ];
       break;
     case 'purchases':
       headers.value = [
-        { title: 'Id', value: 'id' },
-        { title: 'Descrição', value: 'description' },
-        { title: 'Preço', value: 'price' },
-        { title: 'Data', value: 'date' },
+        {title: 'Id', value: 'id'},
+        {title: 'Descrição', value: 'description'},
+        {title: 'Preço', value: 'price'},
+        {title: 'Data', value: 'date'},
       ];
       break;
     case 'sessions':
       headers.value = [
-        { title: 'Id', value: 'id' },
-        { title: 'Data_login', value: 'loginDate' },
+        {title: 'Id', value: 'id'},
+        {title: 'Data do Login', value: 'loginDate'},
       ];
       break;
   }
 
   try {
-    const response = await fetch(`http://129.159.63.39:8080/v1/history/${props.clientId}/${props.historyType}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${useUserStore().user.accessToken}`,
-      },
-    });
-
-    const data = await response.json();
-
-    if (Array.isArray(data)) {
-      historyData.value = data;
-    } else {
-      console.error('Os dados recebidos não são um array:', data);
-    }
+    historyData.value = await userStore.getAllClientHistoryType(clientId, historyType);
   } catch (error) {
     console.error('Erro ao obter os dados do histórico:', error);
   }
-});
+}
 
 function confirmDeleteHistory() {
   confirmDelete.value = true;
 }
 
 async function deleteHistory() {
-  const userStore = useUserStore();
+  if (!props.clientId || props.clientId === '') {
+    return;
+  }
+
   try {
-    await fetch(`http://129.159.63.39:8080/v1/history/${props.clientId}/delete`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${useUserStore().user.accessToken}`,
-      },
-      body: JSON.stringify({ historyType: props.historyType }),
-    });
+    await userStore.deleteClientHistoryType(props.clientId, props.historyType);
 
     confirmDelete.value = false;
     modalVisible.value = false;
-    emit('input', false);
+    emit('update:visible', false);
   } catch (error) {
     console.error('Erro ao deletar o histórico:', error);
   }
 }
 </script>
-
-<style scoped>
-/* Seus estilos aqui */
-</style>
