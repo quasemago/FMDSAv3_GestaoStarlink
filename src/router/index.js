@@ -21,6 +21,14 @@ router.beforeEach((to) => {
   if (to.name !== '/' && !userStore.isAuthenticated) {
     return '/'
   }
+
+  // Check client permissions.
+  if (userStore.isAuthenticated) {
+    // Redirect to home if user is not admin.
+    if (to.name === '/gestaoclientes' && userStore.user.role !== 'ADMIN') {
+      return '/'
+    }
+  }
 })
 
 export default router
