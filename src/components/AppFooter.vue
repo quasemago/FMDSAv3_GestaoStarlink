@@ -6,15 +6,7 @@
     </a>
 
     <div class="text-caption text-disabled" style="position: absolute; right: 16px;">
-      &copy; 2024 <span class="d-none d-sm-inline-block"> |
-        <a class="text-decoration-none on-surface footer-link" href="https://github.com/quasemago" rel="noopener noreferrer"
-          target="_blank">
-          Bruno Patrick
-        </a>
-      </span>
-      —
-      Desenvolvido para 2º avaliação da disciplina de FMDS
-      |
+      &copy; 2024 — Desenvolvido para 3º avaliação da disciplina de LBD |
       <a class="text-decoration-none on-surface footer-link" href="https://unemat.br" rel="noopener noreferrer" target="_blank">
         UNEMAT
       </a>
@@ -28,11 +20,6 @@ const items = [
     title: 'GitHub',
     icon: `mdi-github`,
     href: 'https://github.com/quasemago',
-  },
-  {
-    title: 'Linkedin',
-    icon: `mdi-linkedin`,
-    href: 'https://linkedin.com/in/brunoronning',
   }
 ]
 </script>
