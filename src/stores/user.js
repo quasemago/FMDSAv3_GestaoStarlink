@@ -148,6 +148,41 @@ export const useUserStore = defineStore("user", {
           "Authorization": `Bearer ${this.user.accessToken}`
         },
       });
+
+      if (response.status !== 204) {
+        const data = await response.json();
+        throw new Error(data.message);
+      }
+    },
+    async getAllClientHistoryType(clientId, historyType) {
+      const response = await fetch(`${API_URL}/history/${clientId}/${historyType}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.user.accessToken}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      if (!Array.isArray(data)) {
+        throw new Error("Data is not an array");
+      }
+
+      return data;
+    },
+    async deleteClientHistoryType(clientId, historyType) {
+      const response = await fetch(`${API_URL}/v1/history/${clientId}/${historyType}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.user.accessToken}`,
+        },
+      });
+
       if (response.status !== 204) {
         const data = await response.json();
         throw new Error(data.message);
