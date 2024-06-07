@@ -1,4 +1,8 @@
 <template>
+  <v-snackbar v-model="successDeleteMessage" color="success" timeout="3000" location="top">
+    <v-icon icon="mdi-check-circle"></v-icon>
+    Histórico de {{ getTranslatedHistoryType(historyType) }} excluído com sucesso!
+  </v-snackbar>
   <v-dialog v-model="modalVisible" max-width="800px">
     <v-card>
       <v-card-title class="d-flex justify-space-between">
@@ -53,6 +57,7 @@ const modalVisible = ref(props.visible);
 const headers = ref([]);
 const historyData = ref([]);
 const confirmDelete = ref(false);
+const successDeleteMessage = ref(false);
 
 const historyTypeTranslations = {
   browsing: 'Navegação',
@@ -137,10 +142,11 @@ async function deleteHistory() {
   if (!props.clientId || props.clientId === '') {
     return;
   }
-
   try {
     await userStore.deleteClientHistoryType(props.clientId, props.historyType);
+    await fetchHistoryData(props.clientId, props.historyType);
 
+    successDeleteMessage.value = true;
     confirmDelete.value = false;
     modalVisible.value = false;
     emit('update:visible', false);
