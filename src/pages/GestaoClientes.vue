@@ -39,9 +39,9 @@
               hover
             >
               <template v-slot:[`item.profilePicture`]="{ item }">
-                <v-avatar :color="item.profilePicture ? '' : 'surface-variant'" class="ma-3">
+                <v-avatar class="ma-3">
                   <VImg :src="String(item.profilePicture)" v-if="item.profilePicture" />
-                  <span v-else>{{ computeAvatarText(item.username) }}</span>
+                  <VImg src="https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png" v-else />
                 </v-avatar>
               </template>
               <template v-slot:[`item.birthDate`]="{ item }">
@@ -171,12 +171,6 @@ const headers = reactive([
   { title: 'Gênero', value: 'gender', sortable: true },
   { title: 'Ações', value: 'action' },
 ]);
-
-const computeAvatarText = (value) => {
-  if (!value) return '';
-  const nameArray = value.split(' ');
-  return nameArray.map((word) => word.charAt(0).toUpperCase()).join('');
-};
 
 const formatDate = (dateStr) => {
   if (!dateStr) return '';

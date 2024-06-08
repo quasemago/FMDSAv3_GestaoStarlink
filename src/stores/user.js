@@ -2,7 +2,8 @@
 import {defineStore} from "pinia";
 import router from "@/router";
 
-const API_URL = "http://129.159.63.39:8080/v1"
+const HOST_URL = "http://129.159.63.39:8080";
+const API_URL = `${HOST_URL}/v1`;
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -187,6 +188,25 @@ export const useUserStore = defineStore("user", {
         const data = await response.json();
         throw new Error(data.message);
       }
+    },
+    async uploadClientProfilePicture(newFile) {
+      const formData = new FormData();
+      formData.append('profilePicture', newFile);
+
+      const response = await fetch(`${API_URL}/clients/profile-picture/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.user.accessToken}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      return `${HOST_URL}/uploads/${data.profilePicture}`;
     }
   },
 });

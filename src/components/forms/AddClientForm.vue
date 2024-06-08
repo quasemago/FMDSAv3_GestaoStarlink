@@ -25,7 +25,7 @@
             <VTextField
               label="Senha"
               v-model="addNewUser.account.password"
-              :rules="formRules.username"
+              :rules="formRules.password"
               variant="outlined"
               color="primary"
               type="password"
@@ -35,7 +35,7 @@
             <VTextField
               label="Nome"
               v-model="addNewUser.name"
-              :rules="formRules.username"
+              :rules="formRules.emptyField"
               variant="outlined"
               color="primary"
               name="name"
@@ -45,17 +45,19 @@
             <VTextField
               label="Telefone"
               v-model="addNewUser.tel"
-              :rules="formRules.username"
+              :rules="formRules.tel"
               variant="outlined"
               color="primary"
               name="tel"
+              type="tel"
+              v-mask="'(##) #####-####'"
             />
           </VCol>
           <VCol cols="12">
             <VTextField
               label="Endereço"
               v-model="addNewUser.address"
-              :rules="formRules.username"
+              :rules="formRules.emptyField"
               variant="outlined"
               color="primary"
               name="address"
@@ -68,26 +70,31 @@
               variant="outlined"
               color="primary"
               name="birthDate"
+              type="date"
             />
           </VCol>
           <VCol cols="12">
-            <VTextField
+            <v-select
               label="Gênero"
               v-model="addNewUser.gender"
-              :rules="formRules.username"
+              :items="genderOptions"
+              item-title="title"
+              item-value="value"
+              :rules="formRules.gender"
               variant="outlined"
               color="primary"
               name="gender"
             />
           </VCol>
           <VCol cols="12">
-            <VTextField
+            <VFileInput
               label="Foto do Perfil"
-              v-model="addNewUser.profilePicture"
-              :rules="formRules.username"
+              v-model="profilePictureFile"
               variant="outlined"
               color="primary"
               name="profilePicture"
+              prepend-icon=""
+              append-inner-icon="mdi-camera"
             />
           </VCol>
         </VRow>
@@ -101,8 +108,8 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { useUserStore } from "@/stores/user";
+import {ref, watch} from 'vue';
+import {useUserStore} from "@/stores/user";
 
 const userStore = useUserStore();
 const emit = defineEmits(['form:cancel', 'form:saved']);
@@ -129,24 +136,47 @@ const initialUserState = () => ({
 });
 
 const formRules = ref({
-  username: [
-    (value) => !!value || 'Campo obrigatório'
+  emptyField: [
+    (value) => !!value || 'Campo obrigatório',
+    (value) => value.length >= 3 || 'Esse campo deve ter no mínimo 3 caracteres'
+  ],
+  password: [
+    (value) => !!value || 'Campo obrigatório',
+    (value) => value.length >= 6 || 'Senha deve ter no mínimo 6 caracteres'
   ],
   email: [
     (value) => !!value || 'Campo obrigatório',
     (value) => /.+@.+\..+/.test(value) || 'E-mail inválido'
-  ]
+  ],
+  tel: [
+    (value) => !!value || 'Campo obrigatório',
+    (value) => /^\(\d{2}\) \d{5}-\d{4}$/.test(value) || 'Telefone inválido'
+  ],
+  gender: [
+    (value) => !!value || 'Campo obrigatório',
+    (value) => ['M', 'F'].includes(value) || 'Gênero inválido'
+  ],
 });
 
+const genderOptions = ref([
+  {title: 'Masculino', value: 'M'},
+  {title: 'Feminino', value: 'F'}
+]);
+
+const profilePictureFile = ref(null);
 const addNewUser = ref(initialUserState());
 
 // Manipuladores de eventos
 const handleSaveItem = async (e) => {
   e.preventDefault();
 
-  const data = { ...addNewUser.value };
+  const data = {...addNewUser.value};
 
   try {
+    if (profilePictureFile.value) {
+      data.profilePicture = await userStore.uploadClientProfilePicture(profilePictureFile.value);
+    }
+
     await userStore.registerClient(data);
     successSaveMessage.value = true;
     emit('form:saved')
@@ -164,6 +194,7 @@ const handleCancelEdit = () => {
 
 const resetForm = () => {
   Object.assign(addNewUser.value, initialUserState());
+  profilePictureFile.value = null;
 };
 
 // Redefine o formulário quando o diálogo é fechado
