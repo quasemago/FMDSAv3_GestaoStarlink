@@ -15,7 +15,7 @@
             <VTextField
               label="Nome"
               v-model="formModel.name"
-              :rules="formRules.username"
+              :rules="formRules.emptyField"
               variant="outlined"
               color="primary"
               name="name"
@@ -29,13 +29,15 @@
               variant="outlined"
               color="primary"
               name="tel"
+              type="tel"
+              v-mask="'(##) #####-####'"
             />
           </VCol>
           <VCol cols="12">
             <VTextField
               label="Endereço"
               v-model="formModel.address"
-              :rules="formRules.username"
+              :rules="formRules.emptyField"
               variant="outlined"
               color="primary"
               name="address"
@@ -48,26 +50,31 @@
               variant="outlined"
               color="primary"
               name="birthDate"
+              type="date"
             />
           </VCol>
           <VCol cols="12">
-            <VTextField
+            <VSelect
               label="Gênero"
               v-model="formModel.gender"
-              :rules="formRules.username"
+              :items="genderOptions"
+              item-title="title"
+              item-value="value"
+              :rules="formRules.gender"
               variant="outlined"
               color="primary"
               name="gender"
             />
           </VCol>
           <VCol cols="12">
-            <VTextField
+            <VFileInput
               label="Foto do Perfil"
-              v-model="formModel.profilePicture"
-              :rules="formRules.username"
+              v-model="profilePictureFile"
               variant="outlined"
               color="primary"
               name="profilePicture"
+              prepend-icon=""
+              append-inner-icon="mdi-camera"
             />
           </VCol>
         </VRow>
@@ -97,16 +104,36 @@ const props = defineProps({
 const emit = defineEmits(['form:cancel', 'form:saved']);
 
 // Regras do formulário
-const formRules = reactive({
-  username: [
-    (value) => {
-      if (value) return true;
-      return 'Username required';
-    }
-  ]
+const formRules = ref({
+  emptyField: [
+    (value) => !!value || 'Campo obrigatório',
+    (value) => value.length >= 3 || 'Esse campo deve ter no mínimo 3 caracteres'
+  ],
+  password: [
+    (value) => !!value || 'Campo obrigatório',
+    (value) => value.length >= 6 || 'Senha deve ter no mínimo 6 caracteres'
+  ],
+  email: [
+    (value) => !!value || 'Campo obrigatório',
+    (value) => /.+@.+\..+/.test(value) || 'E-mail inválido'
+  ],
+  tel: [
+    (value) => !!value || 'Campo obrigatório',
+    (value) => /^\(\d{2}\) \d{5}-\d{4}$/.test(value) || 'Telefone inválido'
+  ],
+  gender: [
+    (value) => !!value || 'Campo obrigatório',
+    (value) => ['M', 'F'].includes(value) || 'Gênero inválido'
+  ],
 });
 
+const genderOptions = ref([
+  {title: 'Masculino', value: 'M'},
+  {title: 'Feminino', value: 'F'}
+]);
+
 // Modelo reativo do formulário
+const profilePictureFile = ref(null);
 const formModel = reactive({
   ...props.user
 });
@@ -118,6 +145,10 @@ const handleSaveItem = async (e) => {
   const data = {...formModel};
 
   try {
+    if (profilePictureFile.value) {
+      data.profilePicture = await userStore.uploadClientProfilePicture(profilePictureFile.value);
+    }
+
     await userStore.updateClient(data.id, data);
     successEditMessage.value = true;
     emit('form:saved')
@@ -129,11 +160,13 @@ const handleSaveItem = async (e) => {
 };
 
 const handleCancelEdit = () => {
+  profilePictureFile.value = null;
   emit('form:cancel');
 };
 
 // Assistindo mudanças nas propriedades
 watch(props, () => {
+  profilePictureFile.value = null;
   Object.assign(formModel, props.user);
 });
 </script>

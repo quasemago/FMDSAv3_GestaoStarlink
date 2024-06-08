@@ -8,10 +8,12 @@
 import vuetify from './vuetify'
 import pinia from '@/stores'
 import router from '@/router'
+import VueTheMask from 'vue-the-mask'
 
 export function registerPlugins (app) {
   app
     .use(vuetify)
     .use(pinia)
     .use(router)
+    .use(VueTheMask)
 }
