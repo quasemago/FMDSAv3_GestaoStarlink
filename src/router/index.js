@@ -28,6 +28,10 @@ router.beforeEach((to) => {
     if (to.name === '/gestaoclientes' && userStore.user.role !== 'ADMIN') {
       return '/'
     }
+    // Redirect to dashboard if user is admin.
+    if (to.name === '/editarperfil' && userStore.user.role === 'ADMIN') {
+      return '/dashboard'
+    }
   }
 })
 

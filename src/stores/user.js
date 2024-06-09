@@ -31,10 +31,13 @@ export const useUserStore = defineStore("user", {
       return this.client.name || this.user.username.split('@')[0];
     },
     getUserProfilePicture() {
-      return this.client.profilePicture || 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png';
+      return this.client.profilePicture ? `${HOST_URL}/uploads/${this.client.profilePicture}` : 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png';
     },
     getClientProfile() {
       return this.client;
+    },
+    getUserProfile() {
+      return this.user;
     }
   },
   actions: {
@@ -80,6 +83,10 @@ export const useUserStore = defineStore("user", {
       this.client = {};
       router.push('/');
     },
+    // Utils.
+    formatProfilePicture(profilePicture) {
+      return profilePicture ? `${HOST_URL}/uploads/${profilePicture}` : 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png';
+    },
     // Client Actions.
     async getClientSelfDetails() {
       return await fetch(`${API_URL}/clients/details`, {
@@ -89,6 +96,59 @@ export const useUserStore = defineStore("user", {
           "Authorization": `Bearer ${this.user.accessToken}`
         },
       });
+    },
+    async updateClientSelfPassword(newPassword) {
+      const response = await fetch(`${API_URL}/clients/update-password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${this.user.accessToken}`
+        },
+        body: JSON.stringify({password: newPassword}),
+      });
+
+      if (response.status !== 204) {
+        const data = await response.json();
+        throw new Error(data.message);
+      }
+    },
+    async updateClientSelfDetails(newClientData) {
+      const response = await fetch(`${API_URL}/clients/update`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${this.user.accessToken}`
+        },
+        body: JSON.stringify(newClientData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      this.client = data;
+    },
+    async updateClientSelfProfilePicture(newFile) {
+      const formData = new FormData();
+      formData.append('oldProfilePicture', this.client.profilePicture || '');
+      formData.append('profilePicture', newFile);
+
+      const response = await fetch(`${API_URL}/clients/update-profile-picture`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.user.accessToken}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      this.client.profilePicture = data.profilePicture
+      return data.profilePicture;
     },
     // Admin Actions.
     async GetAllClientList() {
@@ -189,6 +249,26 @@ export const useUserStore = defineStore("user", {
         throw new Error(data.message);
       }
     },
+    async updateClientProfilePicture(clientId, oldFile, newFile) {
+      const formData = new FormData();
+      formData.append('oldProfilePicture', oldFile);
+      formData.append('profilePicture', newFile);
+
+      const response = await fetch(`${API_URL}/clients/${clientId}/update-profile-picture`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.user.accessToken}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      return data.profilePicture;
+    },
     async uploadClientProfilePicture(newFile) {
       const formData = new FormData();
       formData.append('profilePicture', newFile);
@@ -206,7 +286,7 @@ export const useUserStore = defineStore("user", {
         throw new Error(data.message);
       }
 
-      return `${HOST_URL}/uploads/${data.profilePicture}`;
+      return data.profilePicture;
     }
   },
 });

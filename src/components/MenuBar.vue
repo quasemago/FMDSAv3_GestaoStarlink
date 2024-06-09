@@ -6,9 +6,6 @@
     <v-app-bar color="primary">
       <v-app-bar-nav-icon @click="drawer = !drawer"/>
       <v-app-bar-title>Gestão Starlink</v-app-bar-title>
-      <div class="mr-4">
-        <v-btn class="bg-blue-lighten-2" @click="userStore.signOut">Logout</v-btn>
-      </div>
     </v-app-bar>
   </div>
 </template>
