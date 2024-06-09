@@ -93,6 +93,7 @@
               variant="outlined"
               color="primary"
               name="profilePicture"
+              accept="image/png, image/jpeg"
               prepend-icon=""
               append-inner-icon="mdi-camera"
             />
