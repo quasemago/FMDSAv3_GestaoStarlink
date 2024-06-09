@@ -146,7 +146,7 @@ const handleSaveItem = async (e) => {
 
   try {
     if (profilePictureFile.value) {
-      data.profilePicture = await userStore.uploadClientProfilePicture(profilePictureFile.value);
+      data.profilePicture = await userStore.updateClientProfilePicture(data.id, data.profilePicture, profilePictureFile.value);
     }
 
     await userStore.updateClient(data.id, data);

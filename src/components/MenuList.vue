@@ -17,6 +17,12 @@
             </template>
             <v-list-item-title v-text="item.text"></v-list-item-title>
           </v-list-item>
+          <v-list-item class="logoutBtn">
+            <template v-slot:prepend>
+              <v-icon icon="mdi-logout"></v-icon>
+            </template>
+            <v-list-item-title @click="logout()">Deslogar</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
 
@@ -33,10 +39,23 @@ const userStore = useUserStore();
 
 const items = [
   {text: 'Dashboard', icon: 'mdi-view-dashboard', to: '/dashboard'},
+  {text: 'Editar Perfil', icon: 'mdi-account', to: '/editarperfil', access: 'USER'},
   {text: 'Gestão de Clientes', icon: 'mdi-cog-box', to: '/gestaoclientes', access: 'ADMIN'},
 ]
 const filteredItems = computed(() => {
   return items.filter(item => !item.access || item.access === userStore.user.role);
 });
 
+const logout = () => {
+  userStore.signOut();
+}
 </script>
+
+<style scoped>
+.logoutBtn {
+  cursor: pointer;
+}
+.logoutBtn:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+</style>

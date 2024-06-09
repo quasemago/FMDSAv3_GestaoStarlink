@@ -40,7 +40,7 @@
             >
               <template v-slot:[`item.profilePicture`]="{ item }">
                 <v-avatar class="ma-3">
-                  <VImg :src="String(item.profilePicture)" v-if="item.profilePicture" />
+                  <VImg :src="String(userStore.formatProfilePicture(item.profilePicture))" v-if="item.profilePicture" />
                   <VImg src="https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png" v-else />
                 </v-avatar>
               </template>
@@ -224,14 +224,12 @@ const handleItemEdited = async () => {
 const handleDeleteItem = (row) => {
   showDeleteDialog.value = true;
   selectedUserIdToDelete.value = row.id;
-  console.log(selectedUserIdToDelete.value);
 };
 
 const handleDeleteItemConfirm = async () => {
   try {
     await userStore.deleteClient(selectedUserIdToDelete.value);
     await loadData();
-    console.log("deletado");
   } catch (error) {
     console.log(error);
   }
