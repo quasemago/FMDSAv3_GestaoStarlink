@@ -13,6 +13,9 @@
       </v-card-title>
       <v-card-text>
         <v-data-table :headers="headers" :items="historyData" class="elevation-1">
+          <template v-slot:[`item.date`]="{ item }">
+            {{ formatDate(item.date) }}
+          </template>
         </v-data-table>
       </v-card-text>
       <v-dialog v-model="confirmDelete" max-width="600px">
@@ -94,44 +97,54 @@ async function fetchHistoryData(clientId, historyType) {
   switch (historyType) {
     case 'browsing':
       headers.value = [
-        {title: 'Id', value: 'id', sortable: true},
         {title: 'Url', value: 'url', sortable: true},
+        {title: 'Data', value: 'date', sortable: true},
       ];
       break;
     case 'location':
       headers.value = [
-        {title: 'Id', value: 'id'},
-        {title: 'Localização', value: 'geoLocation'},
-        {title: 'Endereço IP', value: 'ipAddress'},
+        {title: 'Localização', value: 'geoLocation', sortable: true},
+        {title: 'Endereço IP', value: 'ipAddress', sortable: true},
+        {title: 'Data', value: 'date', sortable: true},
       ];
       break;
     case 'interests':
       headers.value = [
-        {title: 'Id', value: 'id'},
-        {title: 'Interesse', value: 'keyword'},
+        {title: 'Palavra-chave', value: 'keyword', sortable: true},
+        {title: 'Data', value: 'date', sortable: true},
       ];
       break;
     case 'purchases':
       headers.value = [
-        {title: 'Id', value: 'id'},
         {title: 'Descrição', value: 'description'},
-        {title: 'Preço', value: 'price'},
-        {title: 'Data', value: 'date'},
+        {title: 'Preço', value: 'price', sortable: true},
+        {title: 'Data', value: 'date', sortable: true},
       ];
       break;
     case 'sessions':
       headers.value = [
-        {title: 'Id', value: 'id'},
-        {title: 'Data do Login', value: 'loginDate'},
+        {title: 'Data', value: 'date', sortable: true},
       ];
       break;
   }
 
   try {
-    historyData.value = await userStore.getAllClientHistoryType(clientId, historyType);
+    let data = await userStore.getAllClientHistoryType(clientId, historyType);
+    historyData.value = data;
   } catch (error) {
     console.error('Erro ao obter os dados do histórico:', error);
   }
+}
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 }
 
 function confirmDeleteHistory() {
