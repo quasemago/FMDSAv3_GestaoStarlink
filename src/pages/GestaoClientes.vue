@@ -1,4 +1,5 @@
 <template>
+  <h2>Gestão de Clientes</h2>
   <v-container>
     <v-row>
       <v-col cols="12">
@@ -33,7 +34,7 @@
             <v-data-table
               :headers="headers"
               :items="filteredUsers"
-              v-model:items-per-page="itemsPerPage"
+              items-per-page="10"
               :loading="loading"
               @update:options="loadData"
               hover
@@ -109,14 +110,13 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
-import { useUserStore } from "@/stores/user";
+import {reactive, ref} from 'vue';
+import {useUserStore} from "@/stores/user";
 import EditClientForm from '@/components/forms/EditClientForm.vue';
 import AddClientForm from '@/components/forms/AddClientForm.vue';
 import HistoryModal from '@/components/forms/HistoryModal.vue';
 
 const userStore = useUserStore();
-const itemsPerPage = ref(10);
 const showFilter = ref(true);
 const showAddDialog = ref(false);
 const showEditDialog = ref(false);
@@ -180,7 +180,7 @@ const formatDate = (dateStr) => {
 
 const loadData = async () => {
   loading.value = true;
-  await userStore.GetAllClientList()
+  await userStore.getAllClientList("")
     .then((response) => {
       originalUsers.value = response;
       filteredUsers.value = response;

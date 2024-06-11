@@ -38,7 +38,7 @@ import {useUserStore} from '@/stores/user';
 const userStore = useUserStore();
 
 const items = [
-  {text: 'Dashboard', icon: 'mdi-view-dashboard', to: '/dashboard'},
+  {text: 'Dashboard', icon: 'mdi-view-dashboard', to: '/dashboard', access: 'ADMIN'},
   {text: 'Editar Perfil', icon: 'mdi-account', to: '/editarperfil', access: 'USER'},
   {text: 'Gestão de Clientes', icon: 'mdi-cog-box', to: '/gestaoclientes', access: 'ADMIN'},
 ]

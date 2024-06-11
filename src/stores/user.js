@@ -74,9 +74,16 @@ export const useUserStore = defineStore("user", {
           .then(data => {
             this.client = data;
           });
-      }
 
-      router.push('/dashboard');
+        // Salva no backend o histórico da sessão do cliente.
+        await this.insertClientSelfSessionHistory({
+          date: new Date().toISOString().slice(0, 19).replace('T', ' '),
+        });
+
+        router.push('/editarperfil')
+      } else {
+        router.push('/dashboard');
+      }
     },
     async signOut() {
       this.user = {};
@@ -150,26 +157,36 @@ export const useUserStore = defineStore("user", {
       this.client.profilePicture = data.profilePicture
       return data.profilePicture;
     },
-    // Admin Actions.
-    async GetAllClientList() {
-      try {
-        const response = await fetch(`${API_URL}/clients`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${this.user.accessToken}`
-          },
-        });
+    async insertClientSelfSessionHistory(sessionData) {
+      const response = await fetch(`${API_URL}/history/self/sessions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.user.accessToken}`,
+        },
+        body: JSON.stringify(sessionData),
+      });
 
+      if (!response.ok) {
         const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message);
-        }
-        return data;
-      } catch (error) {
-        console.error('Error fetching client list:', error);
-        return []; // Retorna um vetor vazio em caso de erro
+        throw new Error(data.message);
       }
+    },
+    // Admin Actions.
+    async getAllClientList(params) {
+      const response = await fetch(`${API_URL}/clients?${params}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${this.user.accessToken}`
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+      return data;
     },
     async updateClient(clientId, clientData) {
       const response = await fetch(`${API_URL}/clients/${clientId}/update`, {
@@ -287,6 +304,62 @@ export const useUserStore = defineStore("user", {
       }
 
       return data.profilePicture;
+    },
+    async getAllBrowsingHistoryCountByYear(year) {
+      const response = await fetch(`${API_URL}/history/browsing-count/${year}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.user.accessToken}`,
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+      return data.content;
+    },
+    async getAllPurchasesHistoryCountByYear(year) {
+      const response = await fetch(`${API_URL}/history/purchases-count/${year}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.user.accessToken}`,
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+      return data.content;
+    },
+    async getAllSessionsHistoryCountByYear(year) {
+      const response = await fetch(`${API_URL}/history/sessions-count/${year}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.user.accessToken}`,
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+      return data.content;
+    },
+    async getAllClientRecentSessions() {
+      const response = await fetch(`${API_URL}/history/sessions-recent`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.user.accessToken}`,
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+      return data.content;
     }
   },
 });
