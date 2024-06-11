@@ -9,6 +9,7 @@ import vuetify from './vuetify'
 import pinia from '@/stores'
 import router from '@/router'
 import VueTheMask from 'vue-the-mask'
+import VueApexCharts from "vue3-apexcharts";
 
 export function registerPlugins (app) {
   app
@@ -16,4 +17,5 @@ export function registerPlugins (app) {
     .use(pinia)
     .use(router)
     .use(VueTheMask)
+    .use(VueApexCharts)
 }
