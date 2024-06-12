@@ -7,9 +7,14 @@
     <v-card>
       <v-card-title class="d-flex justify-space-between">
         <span>Histórico de {{ getTranslatedHistoryType(historyType) }}</span>
-        <v-btn icon @click="confirmDeleteHistory">
-          <v-icon>mdi-delete</v-icon>
-        </v-btn>
+        <div class="d-flex ga-3 mr-3 mt-2">
+          <v-btn icon @click="exportHistoryToPDF">
+            <v-icon>mdi-file-pdf-box</v-icon>
+          </v-btn>
+          <v-btn icon @click="confirmDeleteHistory">
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
+        </div>
       </v-card-title>
       <v-card-text>
         <v-data-table :headers="headers" :items="historyData" class="elevation-1">
@@ -38,6 +43,8 @@
 <script setup>
 import {onMounted, ref, watch} from 'vue';
 import {useUserStore} from "@/stores/user";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const userStore = useUserStore();
 const props = defineProps({
@@ -59,6 +66,7 @@ const emit = defineEmits(['update:visible']);
 const modalVisible = ref(props.visible);
 const headers = ref([]);
 const historyData = ref([]);
+const clientData = ref({});
 const confirmDelete = ref(false);
 const successDeleteMessage = ref(false);
 
@@ -83,17 +91,23 @@ watch(modalVisible, (val) => {
 });
 
 watch([() => props.clientId, () => props.historyType], async ([newClientId, newHistoryType]) => {
-  await fetchHistoryData(newClientId, newHistoryType);
+  await loadData(newClientId, newHistoryType);
 });
 
 onMounted(async () => {
-  await fetchHistoryData(props.clientId, props.historyType);
+  await loadData(props.clientId, props.historyType);
 });
+
+const loadData = async (clientId, historyType) => {
+  await fetchHistoryData(clientId, historyType);
+  await fetchClientData(clientId);
+};
 
 async function fetchHistoryData(clientId, historyType) {
   if (!clientId || clientId === '') {
     return;
   }
+
   switch (historyType) {
     case 'browsing':
       headers.value = [
@@ -129,10 +143,20 @@ async function fetchHistoryData(clientId, historyType) {
   }
 
   try {
-    let data = await userStore.getAllClientHistoryType(clientId, historyType);
-    historyData.value = data;
+    historyData.value = await userStore.getAllClientHistoryType(clientId, historyType);
   } catch (error) {
     console.error('Erro ao obter os dados do histórico:', error);
+  }
+}
+
+async function fetchClientData(clientId) {
+  if (!clientId || clientId === '') {
+    return;
+  }
+  try {
+    clientData.value = await userStore.getClientDetails(clientId);
+  } catch (error) {
+    console.error('Erro ao obter os dados do cliente:', error);
   }
 }
 
@@ -145,6 +169,12 @@ const formatDate = (dateString) => {
     hour: '2-digit',
     minute: '2-digit'
   });
+}
+
+const formatBirthDate = (dateString) => {
+  if (!dateString) return '';
+  const [year, month, day] = dateString.split('-');
+  return `${day}/${month}/${year}`;
 }
 
 function confirmDeleteHistory() {
@@ -166,5 +196,34 @@ async function deleteHistory() {
   } catch (error) {
     console.error('Erro ao deletar o histórico:', error);
   }
+}
+
+function exportHistoryToPDF() {
+  const doc = new jsPDF();
+
+  doc.text(`Histórico de ${getTranslatedHistoryType(props.historyType)}`, 10, 10);
+  doc.text(`Cliente: ${clientData.value.name}`, 10, 20);
+  doc.text(`Telefone: ${clientData.value.tel}`, 10, 30);
+  doc.text(`Endereço: ${clientData.value.address}`, 10, 40);
+  doc.text(`Data de Nascimento: ${formatBirthDate(clientData.value.birthDate)}`, 10, 50);
+
+  const tableColumn = headers.value.map(header => header.title);
+  const tableRows = [];
+
+  historyData.value.forEach(item => {
+    const rowData = headers.value.map(header => {
+      const value = item[header.value];
+      return header.value === 'date' ? formatDate(value) : value;
+    });
+    tableRows.push(rowData);
+  });
+
+  doc.autoTable({
+    head: [tableColumn],
+    body: tableRows,
+    startY: 60,
+  });
+
+  doc.save(`historico_${props.historyType}_${props.clientId}_${new Date().toLocaleDateString('pt-BR')}.pdf`);
 }
 </script>

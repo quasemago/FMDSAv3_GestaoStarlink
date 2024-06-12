@@ -188,6 +188,20 @@ export const useUserStore = defineStore("user", {
       }
       return data;
     },
+    async getClientDetails(clientId) {
+      const response = await fetch(`${API_URL}/clients/${clientId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${this.user.accessToken}`
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+      return data;
+    },
     async updateClient(clientId, clientData) {
       const response = await fetch(`${API_URL}/clients/${clientId}/update`, {
         method: "PUT",
