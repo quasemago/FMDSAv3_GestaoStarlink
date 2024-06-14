@@ -15,6 +15,15 @@ const clientRequestSchema = Joi.object({
     profilePicture: Joi.string().optional()
 });
 
+const clientUpdateSchema = Joi.object({
+    name: Joi.string().min(3).required(),
+    tel: Joi.string().pattern(/^\d{11}$/).required(),
+    address: Joi.string().required(),
+    birthDate: Joi.date().iso().required(),
+    gender: Joi.string().valid('M', 'F').required(),
+    profilePicture: Joi.string().optional()
+});
+
 class ClientController {
     async getAll(req, res) {
         try {
@@ -91,6 +100,69 @@ class ClientController {
             return res.status(201).json(client);
         } catch (err) {
             app_logger.error(err);
+            return res.status(400).json({
+                message: err.message
+            });
+        }
+    }
+
+    async update(req, res) {
+        const {id} = req.params;
+        if (!id) {
+            return res.status(422).json({
+                message: 'Campo(s) inválido(s).',
+                details: ['Campo \'id\' é obrigatório.']
+            });
+        }
+
+        const {error, value} = clientUpdateSchema.validate(req.body);
+        if (error) {
+            return res.status(422).json({
+                message: 'Campo(s) inválido(s).',
+                details: error.details
+            });
+        }
+
+        try {
+            const data = value;
+            const client = await Client.findByPk(id);
+            if (!client) {
+                return res.status(404).json({
+                    message: 'Cliente com o id informado não encontrado.'
+                });
+            }
+
+            await client.update(data);
+            return res.json(client);
+        } catch (err) {
+            app_logger.error(err);
+            return res.status(400).json({
+                message: err.message
+            });
+        }
+    }
+
+    async delete(req, res) {
+        const {id} = req.params;
+        if (!id) {
+            return res.status(422).json({
+                message: 'Campo(s) inválido(s).',
+                details: ['Campo \'id\' é obrigatório.']
+            });
+        }
+
+        try {
+            await Client.destroy({
+                where: {
+                    id: id
+                }
+            });
+            return res.status(204).send();
+        } catch (err) {
+            app_logger.error(err);
+            return res.status(400).json({
+                message: err.message
+            });
         }
     }
 }
