@@ -1,6 +1,7 @@
 import express from 'express';
 import {testDbConnection} from "./helper/utils.js";
 import './database/database.js';
+import accountRouter from "./router/accountRouter.js";
 
 export default class GestaoStarlink {
     constructor() {
@@ -25,6 +26,6 @@ export default class GestaoStarlink {
     }
 
     routes() {
-        //
+        this.app.use(`${API_URL}/login/`, accountRouter);
     }
 }
