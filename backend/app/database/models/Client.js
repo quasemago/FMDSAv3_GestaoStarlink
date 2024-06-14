@@ -18,6 +18,9 @@ export default class Client extends Model {
                     type: Sequelize.STRING,
                     allowNull: false,
                     unique: true,
+                    validate:{
+                        is: /^\d{11}$/
+                    }
                 },
                 address: {
                     type: Sequelize.STRING,
