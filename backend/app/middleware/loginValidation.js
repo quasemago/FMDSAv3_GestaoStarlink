@@ -12,7 +12,6 @@ export default async (req, res, next) => {
     const token = authorization.replace('Bearer', '').trim();
     try {
         const decoded = jwt.verify(token, app_config.JWT_TOKEN_SECRET);
-        console.log(decoded)
         const {id, email, role} = decoded;
 
         const account = await Account.findOne({
