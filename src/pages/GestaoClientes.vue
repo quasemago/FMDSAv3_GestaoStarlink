@@ -1,5 +1,9 @@
 <template>
   <h2>Gestão de Clientes</h2>
+  <v-snackbar v-model="successDeleteMessage" color="success" timeout="3000" location="top">
+    <v-icon icon="mdi-check-circle"></v-icon>
+    Cliente excluído com sucesso!
+  </v-snackbar>
   <v-container>
     <v-row>
       <v-col cols="12">
@@ -121,6 +125,7 @@ const showFilter = ref(true);
 const showAddDialog = ref(false);
 const showEditDialog = ref(false);
 const showDeleteDialog = ref(false);
+const successDeleteMessage = ref(false);
 const historyModal = ref(false);
 const searchText = ref('');
 const originalUsers = ref([]);
@@ -230,6 +235,7 @@ const handleDeleteItemConfirm = async () => {
   try {
     await userStore.deleteClient(selectedUserIdToDelete.value);
     await loadData();
+    successDeleteMessage.value = true;
   } catch (error) {
     console.log(error);
   }
