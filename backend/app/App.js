@@ -1,4 +1,6 @@
 import express from 'express';
+import {testDbConnection} from "./helper/utils.js";
+import './database/database.js';
 
 export default class GestaoStarlink {
     constructor() {
@@ -9,6 +11,7 @@ export default class GestaoStarlink {
     async start() {
         try {
             await this.app.listen(this.port);
+            await testDbConnection(app_db);
             this.middlewares();
             this.routes();
         } catch (err) {
