@@ -34,7 +34,7 @@
             </v-toolbar>
           </v-card-item>
           <v-card-text class="pa-0 pb-5">
-            <v-divider />
+            <v-divider/>
             <v-data-table
               :headers="headers"
               :items="filteredUsers"
@@ -45,9 +45,12 @@
             >
               <template v-slot:[`item.profilePicture`]="{ item }">
                 <v-avatar class="ma-3">
-                  <VImg :src="String(userStore.formatProfilePicture(item.profilePicture))" v-if="item.profilePicture" />
-                  <VImg src="https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png" v-else />
+                  <VImg :src="String(userStore.formatProfilePicture(item.profilePicture))" v-if="item.profilePicture"/>
+                  <VImg src="https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png" v-else/>
                 </v-avatar>
+              </template>
+              <template v-slot:[`item.tel`]="{ item }">
+                <span>{{ formatTel(item.tel) }}</span>
               </template>
               <template v-slot:[`item.birthDate`]="{ item }">
                 <span>{{ formatDate(item.birthDate) }}</span>
@@ -56,8 +59,10 @@
                 <span>{{ item.gender === 'M' ? 'Masculino' : 'Feminino' }}</span>
               </template>
               <template v-slot:[`item.action`]="{ item }">
-                <v-btn variant="plain" density="compact" icon="mdi-pencil-outline" @click="handleEditItem(item)"></v-btn>
-                <v-btn variant="plain" density="compact" icon="mdi-trash-can-outline" @click="handleDeleteItem(item)"></v-btn>
+                <v-btn variant="plain" density="compact" icon="mdi-pencil-outline"
+                       @click="handleEditItem(item)"></v-btn>
+                <v-btn variant="plain" density="compact" icon="mdi-trash-can-outline"
+                       @click="handleDeleteItem(item)"></v-btn>
                 <v-btn variant="plain" density="compact" icon="mdi-history" @click="openHistoryModal(item.id)"></v-btn>
               </template>
             </v-data-table>
@@ -68,10 +73,10 @@
 
     <!-- Dialogs for Edit, Add and Delete -->
     <v-dialog v-model="showEditDialog" width="auto" eager>
-      <EditClientForm :user="selectedUser" @form:cancel="showEditDialog = false" @form:saved="handleItemEdited" />
+      <EditClientForm :user="selectedUser" @form:cancel="showEditDialog = false" @form:saved="handleItemEdited"/>
     </v-dialog>
     <v-dialog v-model="showAddDialog" width="auto" eager>
-      <AddClientForm :show-dialog="showAddDialog" @form:cancel="showAddDialog = false" @form:saved="handleItemSaved" />
+      <AddClientForm :show-dialog="showAddDialog" @form:cancel="showAddDialog = false" @form:saved="handleItemSaved"/>
     </v-dialog>
     <v-dialog v-model="showDeleteDialog" width="auto" eager>
       <v-card>
@@ -133,7 +138,7 @@ const filteredUsers = ref([]);
 
 const selectedUser = reactive({
   id: null,
-  account: {
+  Account: {
     email: '',
     role: '',
   },
@@ -149,11 +154,11 @@ const selectedUserIdToDelete = ref(null);
 const selectedClientId = ref(null);
 
 const histories = ref([
-  { name: 'Histórico de Navegação', endpoint: 'browsing' },
-  { name: 'Histórico de Localização', endpoint: 'location' },
-  { name: 'Histórico de Interesse', endpoint: 'interests' },
-  { name: 'Histórico de Compras', endpoint: 'purchases' },
-  { name: 'Histórico de Sessão', endpoint: 'sessions' },
+  {name: 'Histórico de Navegação', endpoint: 'browsing'},
+  {name: 'Histórico de Localização', endpoint: 'location'},
+  {name: 'Histórico de Interesse', endpoint: 'interests'},
+  {name: 'Histórico de Compras', endpoint: 'purchases'},
+  {name: 'Histórico de Sessão', endpoint: 'sessions'},
 ]);
 
 const modals = ref({
@@ -167,15 +172,20 @@ const modals = ref({
 const loading = ref(true);
 
 const headers = reactive([
-  { title: 'Foto', value: 'profilePicture' },
-  { title: 'Nome', value: 'name', sortable: true },
-  { title: 'Email', value: 'account.email', sortable: true },
-  { title: 'Telefone', value: 'tel', sortable: true },
-  { title: 'Endereço', value: 'address', sortable: true },
-  { title: 'Data de Nascimento', value: 'birthDate', sortable: true },
-  { title: 'Gênero', value: 'gender', sortable: true },
-  { title: 'Ações', value: 'action' },
+  {title: 'Foto', value: 'profilePicture'},
+  {title: 'Nome', value: 'name', sortable: true},
+  {title: 'Email', value: 'Account.email', sortable: true},
+  {title: 'Telefone', value: 'tel', sortable: true},
+  {title: 'Endereço', value: 'address', sortable: true},
+  {title: 'Data de Nascimento', value: 'birthDate', sortable: true},
+  {title: 'Gênero', value: 'gender', sortable: true},
+  {title: 'Ações', value: 'action'},
 ]);
+
+const formatTel = (tel) => {
+  if (!tel) return '';
+  return `(${tel.slice(0, 2)}) ${tel.slice(2, 7)}-${tel.slice(7)}`;
+};
 
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
@@ -185,7 +195,7 @@ const formatDate = (dateStr) => {
 
 const loadData = async () => {
   loading.value = true;
-  await userStore.getAllClientList("")
+  await userStore.getAllClientList()
     .then((response) => {
       originalUsers.value = response;
       filteredUsers.value = response;
@@ -243,7 +253,8 @@ const handleDeleteItemConfirm = async () => {
   selectedUserIdToDelete.value = null;
 };
 
-const handleClear = () => {};
+const handleClear = () => {
+};
 
 const openHistoryModal = (clientId) => {
   selectedClientId.value = clientId;

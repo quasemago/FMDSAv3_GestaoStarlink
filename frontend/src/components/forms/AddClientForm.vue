@@ -174,8 +174,11 @@ const handleSaveItem = async (e) => {
   const data = {...addNewUser.value};
 
   try {
+    // Normalize tel.
+    data.tel = data.tel.replace(/\D/g, '');
+
     if (profilePictureFile.value) {
-      data.profilePicture = await userStore.uploadClientProfilePicture(profilePictureFile.value);
+      data.profilePicture = profilePictureFile.value
     }
 
     await userStore.registerClient(data);

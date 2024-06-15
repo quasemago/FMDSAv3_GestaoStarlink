@@ -144,13 +144,19 @@ const handleSaveItem = async (e) => {
   e.preventDefault();
 
   const data = {...formModel};
+  const clientId = data.id;
 
   try {
     if (profilePictureFile.value) {
-      data.profilePicture = await userStore.updateClientProfilePicture(data.id, data.profilePicture, profilePictureFile.value);
+      data.profilePicture = await userStore.updateClientProfilePicture(clientId, profilePictureFile.value);
     }
 
-    await userStore.updateClient(data.id, data);
+    // Normalize fields.
+    delete data.id;
+    delete data.Account;
+    data.tel = data.tel.replace(/\D/g, '');
+
+    await userStore.updateClient(clientId, data);
     successEditMessage.value = true;
     emit('form:saved')
   } catch (error) {

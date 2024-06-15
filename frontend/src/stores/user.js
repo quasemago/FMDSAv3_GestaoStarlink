@@ -2,7 +2,7 @@
 import {defineStore} from "pinia";
 import router from "@/router";
 
-const HOST_URL = "http://129.159.63.39:8080";
+const HOST_URL = "http://localhost:5000";
 const API_URL = `${HOST_URL}/v1`;
 
 export const useUserStore = defineStore("user", {
@@ -96,7 +96,7 @@ export const useUserStore = defineStore("user", {
     },
     // Client Actions.
     async getClientSelfDetails() {
-      return await fetch(`${API_URL}/clients/details`, {
+      return await fetch(`${API_URL}/clients/self`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -105,7 +105,7 @@ export const useUserStore = defineStore("user", {
       });
     },
     async updateClientSelfPassword(newPassword) {
-      const response = await fetch(`${API_URL}/clients/update-password`, {
+      const response = await fetch(`${API_URL}/clients/self/update-password`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -120,7 +120,7 @@ export const useUserStore = defineStore("user", {
       }
     },
     async updateClientSelfDetails(newClientData) {
-      const response = await fetch(`${API_URL}/clients/update`, {
+      const response = await fetch(`${API_URL}/clients/self/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -131,17 +131,19 @@ export const useUserStore = defineStore("user", {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message);
+        throw new Error({
+          message: data.message,
+          details: data.details || []
+        });
       }
 
       this.client = data;
     },
     async updateClientSelfProfilePicture(newFile) {
       const formData = new FormData();
-      formData.append('oldProfilePicture', this.client.profilePicture || '');
       formData.append('profilePicture', newFile);
 
-      const response = await fetch(`${API_URL}/clients/update-profile-picture`, {
+      const response = await fetch(`${API_URL}/clients/self/update-profile-picture`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.user.accessToken}`,
@@ -173,8 +175,8 @@ export const useUserStore = defineStore("user", {
       }
     },
     // Admin Actions.
-    async getAllClientList(params) {
-      const response = await fetch(`${API_URL}/clients?${params}`, {
+    async getAllClientList() {
+      const response = await fetch(`${API_URL}/clients`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -218,13 +220,24 @@ export const useUserStore = defineStore("user", {
       }
     },
     async registerClient(clientData) {
+      const formData = new FormData();
+      formData.append('account[email]', clientData.account.email);
+      formData.append('account[password]', clientData.account.password);
+      formData.append('name', clientData.name);
+      formData.append('tel', clientData.tel);
+      formData.append('address', clientData.address);
+      formData.append('birthDate', clientData.birthDate);
+      formData.append('gender', clientData.gender);
+      if (clientData.profilePicture) {
+        formData.append('profilePicture', clientData.profilePicture);
+      }
+
       const response = await fetch(`${API_URL}/clients/create`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           "Authorization": `Bearer ${this.user.accessToken}`
         },
-        body: JSON.stringify(clientData),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -280,31 +293,11 @@ export const useUserStore = defineStore("user", {
         throw new Error(data.message);
       }
     },
-    async updateClientProfilePicture(clientId, oldFile, newFile) {
+    async updateClientProfilePicture(clientId, newFile) {
       const formData = new FormData();
-      formData.append('oldProfilePicture', oldFile);
       formData.append('profilePicture', newFile);
 
       const response = await fetch(`${API_URL}/clients/${clientId}/update-profile-picture`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.user.accessToken}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
-      return data.profilePicture;
-    },
-    async uploadClientProfilePicture(newFile) {
-      const formData = new FormData();
-      formData.append('profilePicture', newFile);
-
-      const response = await fetch(`${API_URL}/clients/profile-picture/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.user.accessToken}`,
