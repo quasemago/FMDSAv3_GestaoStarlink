@@ -91,20 +91,34 @@ class ClientController {
             });
         }
 
+        const t = await app_db.transaction();
         try {
             const data = value;
+
+            if (req.file) {
+                data.profilePicture = req.file.filename;
+            }
+
             const account = await Account.create({
                 email: data.account.email,
                 password: data.account.password,
                 role: 'USER'
-            });
+            }, {transaction: t});
 
             data.account_id = account.id;
             delete data.account;
 
-            const client = await Client.create(data);
+            const client = await Client.create(data, {transaction: t});
+            await t.commit();
+
             return res.status(201).json(client);
         } catch (err) {
+            await t.rollback();
+
+            if (req.file) {
+                removeOldProfilePicture(req.file.filename)
+            }
+
             app_logger.error(err);
             return res.status(400).json({
                 message: err.message

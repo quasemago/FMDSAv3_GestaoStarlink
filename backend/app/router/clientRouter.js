@@ -14,7 +14,7 @@ router.post("/self/update-profile-picture", [loginValidation, upload.single('pro
 // Admin routers.
 router.get("/", loginValidation, ClientController.getAll);
 router.get("/:id", [loginValidation, adminValidation], ClientController.getById);
-router.post("/create", [loginValidation, adminValidation], ClientController.create);
+router.post("/create", [loginValidation, adminValidation, upload.single('profilePicture')], ClientController.create);
 router.put("/:id/update", [loginValidation, adminValidation], ClientController.update);
 router.delete("/:id/delete", [loginValidation, adminValidation], ClientController.delete);
 router.post("/:id/update-profile-picture", [loginValidation, adminValidation, upload.single('profilePicture')], ClientController.updateProfilePicture);
