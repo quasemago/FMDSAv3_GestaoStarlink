@@ -25,6 +25,7 @@ const clientUpdateSchema = Joi.object({
 });
 
 class ClientController {
+    // Admin methods.
     async getAll(req, res) {
         try {
             const clients = await Client.findAll({
@@ -162,6 +163,35 @@ class ClientController {
             app_logger.error(err);
             return res.status(400).json({
                 message: err.message
+            });
+        }
+    }
+
+    // Client methods.
+    async getSelfDetails(req, res) {
+        try {
+            const client = await Client.findOne({
+                where: {
+                    account_id: req.userId
+                },
+                attributes: ['id', 'name', 'tel', 'address', 'birthDate', 'gender', 'profilePicture'],
+                include: {
+                    model: Account,
+                    attributes: ['email', 'role']
+                }
+            });
+
+            if (!client) {
+                return res.status(404).json({
+                    message: 'Não foi possível obter os detalhes do perfil do cliente.'
+                });
+            }
+
+            return res.json(client);
+        } catch (err) {
+            app_logger.error(err);
+            return res.status(400).json({
+                message: ERROR_MESSAGES.GENERIC_ERROR
             });
         }
     }

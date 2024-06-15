@@ -4,6 +4,9 @@ import {adminValidation, loginValidation} from "../middleware/routerValidations.
 
 const router = Router();
 
+// Client routers.
+router.get("/self", loginValidation, ClientController.getSelfDetails);
+
 // Admin routers.
 router.get("/", loginValidation, ClientController.getAll);
 router.get("/:id", [loginValidation, adminValidation], ClientController.getById);
