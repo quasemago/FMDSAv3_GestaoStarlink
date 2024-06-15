@@ -1,6 +1,7 @@
 import express from 'express';
 import {getDirName, testDbConnection} from "./helper/utils.js";
 import {resolve} from 'path';
+import cors from 'cors';
 import './database/database.js';
 import accountRouter from "./router/accountRouter.js";
 import clientRouter from "./router/clientRouter.js";
@@ -25,9 +26,10 @@ export default class GestaoStarlink {
     }
 
     middlewares() {
+        this.app.use(cors());
         this.app.use(express.urlencoded({extended: true}));
         this.app.use(express.json());
-        this.app.use(express.static(resolve(__dirname, 'uploads')));
+        this.app.use("/uploads", express.static(resolve(__dirname, '../uploads')));
     }
 
     routes() {
