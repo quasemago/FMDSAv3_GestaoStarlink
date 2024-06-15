@@ -228,6 +228,33 @@ class ClientController {
             });
         }
     }
+
+    async updateSelfPassword(req, res) {
+        const {password} = req.body;
+        if (!password || password.length < 6) {
+            return res.status(422).json({
+                message: 'Campo(s) inválido(s).',
+                details: ['Campo \'password\' é obrigatório e precisa ter pelo menos 6 caracteres.']
+            });
+        }
+
+        try {
+            const account = await Account.findByPk(req.userId);
+            if (!account) {
+                return res.status(404).json({
+                    message: 'Não foi possível atualizar a senha do cliente.'
+                });
+            }
+
+            await account.update({password});
+            return res.status(204).send();
+        } catch (err) {
+            app_logger.error(err);
+            return res.status(400).json({
+                message: ERROR_MESSAGES.GENERIC_ERROR
+            });
+        }
+    }
 }
 
 export default new ClientController();
