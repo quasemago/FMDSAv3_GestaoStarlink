@@ -17,5 +17,6 @@ router.get("/:id", [loginValidation, adminValidation], ClientController.getById)
 router.post("/create", [loginValidation, adminValidation], ClientController.create);
 router.put("/:id/update", [loginValidation, adminValidation], ClientController.update);
 router.delete("/:id/delete", [loginValidation, adminValidation], ClientController.delete);
+router.post("/:id/update-profile-picture", [loginValidation, adminValidation, upload.single('profilePicture')], ClientController.updateProfilePicture);
 
 export default router;

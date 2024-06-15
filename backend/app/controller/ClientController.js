@@ -172,6 +172,42 @@ class ClientController {
         }
     }
 
+    async updateProfilePicture(req, res) {
+        try {
+            const {id} = req.params;
+            if (!id) {
+                return res.status(422).json({
+                    message: 'Campo(s) inválido(s).',
+                    details: ['Campo \'id\' é obrigatório.']
+                });
+            }
+
+            const client = await Client.findByPk(id);
+            if (!client) {
+                return res.status(404).json({
+                    message: 'Cliente com o id informado não encontrado.'
+                });
+            }
+
+            if (client.profilePicture) {
+                removeOldProfilePicture(client.profilePicture);
+            }
+
+            client.profilePicture = req.file.filename;
+            await client.save();
+
+            return res.json({
+                profilePicture: client.profilePicture
+            });
+        } catch (err) {
+            app_logger.error(err.message);
+            return res.status(400).json({
+                message: 'Erro ao atualizar foto de perfil.',
+                details: err.message
+            });
+        }
+    }
+
     // Client methods.
     async getSelfDetails(req, res) {
         try {
@@ -276,10 +312,7 @@ class ClientController {
             }
 
             if (client.profilePicture) {
-                const oldPath = path.join(__dirname, '../../uploads/', client.profilePicture);
-                if (fs.existsSync(oldPath)) {
-                    fs.unlinkSync(oldPath);
-                }
+                removeOldProfilePicture(client.profilePicture);
             }
 
             client.profilePicture = req.file.filename;
@@ -295,6 +328,13 @@ class ClientController {
                 details: err.message
             });
         }
+    }
+}
+
+const removeOldProfilePicture = (profilePicture) => {
+    const oldPath = path.join(__dirname, '../../uploads/', profilePicture);
+    if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
     }
 }
 
