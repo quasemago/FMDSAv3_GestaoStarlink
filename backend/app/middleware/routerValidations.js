@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import Account from "../database/models/Account.js";
 
-export default async (req, res, next) => {
+export const loginValidation = async (req, res, next) => {
     const {authorization} = req.headers;
     if (!authorization || !authorization.startsWith('Bearer')) {
         return res.status(401).json({
@@ -35,3 +35,12 @@ export default async (req, res, next) => {
         });
     }
 };
+
+export const adminValidation = async (req, res, next) => {
+    if (req.userRole !== 'ADMIN') {
+        res.status(403)
+            .json({message: "Acesso negado!"});
+        return;
+    }
+    return next();
+}
