@@ -195,6 +195,39 @@ class ClientController {
             });
         }
     }
+
+    async updateSelfDetails(req, res) {
+        const {error, value} = clientUpdateSchema.validate(req.body);
+        if (error) {
+            return res.status(422).json({
+                message: 'Campo(s) inválido(s).',
+                details: error.details
+            });
+        }
+
+        try {
+            const data = value;
+            const client = await Client.findOne({
+                where: {
+                    account_id: req.userId
+                }
+            });
+
+            if (!client) {
+                return res.status(404).json({
+                    message: 'Não foi possível atualizar os detalhes do perfil do cliente.'
+                });
+            }
+
+            await client.update(data);
+            return res.json(client);
+        } catch (err) {
+            app_logger.error(err);
+            return res.status(400).json({
+                message: ERROR_MESSAGES.GENERIC_ERROR
+            });
+        }
+    }
 }
 
 export default new ClientController();

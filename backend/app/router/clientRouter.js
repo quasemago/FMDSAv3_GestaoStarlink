@@ -6,6 +6,7 @@ const router = Router();
 
 // Client routers.
 router.get("/self", loginValidation, ClientController.getSelfDetails);
+router.put("/self/update", loginValidation, ClientController.updateSelfDetails);
 
 // Admin routers.
 router.get("/", loginValidation, ClientController.getAll);
