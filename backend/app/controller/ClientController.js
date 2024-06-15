@@ -1,6 +1,11 @@
 import Joi from "joi";
 import Client from "../database/models/Client.js";
 import Account from "../database/models/Account.js";
+import path from "path";
+import fs from "fs";
+import {getDirName} from "../helper/utils.js";
+
+const __dirname = getDirName(import.meta.url);
 
 const clientRequestSchema = Joi.object({
     account: Joi.object({
@@ -252,6 +257,42 @@ class ClientController {
             app_logger.error(err);
             return res.status(400).json({
                 message: ERROR_MESSAGES.GENERIC_ERROR
+            });
+        }
+    }
+
+    async updateSelfProfilePicture(req, res) {
+        try {
+            const client = await Client.findOne({
+                where: {
+                    account_id: req.userId
+                }
+            });
+
+            if (!client) {
+                return res.status(404).json({
+                    message: 'Não foi possível localizar o cliente.'
+                });
+            }
+
+            if (client.profilePicture) {
+                const oldPath = path.join(__dirname, '../../uploads/', client.profilePicture);
+                if (fs.existsSync(oldPath)) {
+                    fs.unlinkSync(oldPath);
+                }
+            }
+
+            client.profilePicture = req.file.filename;
+            await client.save();
+
+            return res.json({
+                profilePicture: client.profilePicture
+            });
+        } catch (err) {
+            app_logger.error(err.message);
+            return res.status(400).json({
+                message: 'Erro ao atualizar foto de perfil.',
+                details: err.message
             });
         }
     }

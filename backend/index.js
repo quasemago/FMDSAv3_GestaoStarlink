@@ -1,4 +1,4 @@
-import './app/helper/config.js';
+import './app/config/appConfig.js';
 import './app/helper/constants.js';
 import './app/helper/logger.js';
 import GestaoStarlink from "./app/App.js";

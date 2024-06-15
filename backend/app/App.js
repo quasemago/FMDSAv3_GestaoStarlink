@@ -1,8 +1,11 @@
 import express from 'express';
-import {testDbConnection} from "./helper/utils.js";
+import {getDirName, testDbConnection} from "./helper/utils.js";
+import {resolve} from 'path';
 import './database/database.js';
 import accountRouter from "./router/accountRouter.js";
 import clientRouter from "./router/clientRouter.js";
+
+const __dirname = getDirName(import.meta.url);
 
 export default class GestaoStarlink {
     constructor() {
@@ -24,6 +27,7 @@ export default class GestaoStarlink {
     middlewares() {
         this.app.use(express.urlencoded({extended: true}));
         this.app.use(express.json());
+        this.app.use(express.static(resolve(__dirname, 'uploads')));
     }
 
     routes() {
