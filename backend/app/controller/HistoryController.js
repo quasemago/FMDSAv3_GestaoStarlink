@@ -141,6 +141,20 @@ class HistoryController {
         }
 
     }
+
+    async getCountByYear(req, res) {
+        try {
+            const {type, year} = req.params;
+            const data = await app_db.query(`SELECT MONTH(sh.date) as month, COUNT(*) as count
+                                             FROM ${type}_history sh
+                                             WHERE YEAR(sh.date) = ${year}
+                                             GROUP BY MONTH(sh.date)
+                                             order by month asc;`);
+            res.json(data[0]);
+        } catch (err) {
+            res.status(400).json({message: err.message});
+        }
+    }
 }
 
 export default new HistoryController();
