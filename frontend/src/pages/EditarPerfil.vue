@@ -171,6 +171,11 @@ const saveProfile = async () => {
       data.profilePicture = await userStore.updateClientSelfProfilePicture(profilePictureFile.value);
     }
 
+    // Normalize fields.
+    delete data.newPassword;
+    delete data.profilePicture;
+    data.tel = data.tel.replace(/\D/g, '');
+
     await userStore.updateClientSelfDetails(data);
     successSaveMessage.value = true;
   } catch (error) {
