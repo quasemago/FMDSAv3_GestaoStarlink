@@ -1,40 +1,20 @@
 <template>
-  <v-snackbar v-model="successSaveMessage" color="success" timeout="3000" location="top">
+  <v-snackbar v-model="successEditMessage" color="success" timeout="3000" location="top">
     <v-icon icon="mdi-check-circle"></v-icon>
-    Cliente cadastrado com sucesso!
+    Cliente editado com sucesso!
   </v-snackbar>
   <VCard width="640px">
     <VToolbar tag="div">
-      <VToolbarTitle>Cadastrar Cliente</VToolbarTitle>
-      <VBtn icon="mdi-close" @click="handleCancelEdit"></VBtn>
+      <VToolbarTitle>Editar Cliente</VToolbarTitle>
+      <VBtn icon="mdi-close" @click="$emit('form:cancel')"></VBtn>
     </VToolbar>
     <VCardText>
       <VForm>
         <VRow class="d-flex mb-3">
           <VCol cols="12">
             <VTextField
-              label="Email"
-              v-model="addNewUser.account.email"
-              :rules="formRules.email"
-              variant="outlined"
-              color="primary"
-              type="email"
-            />
-          </VCol>
-          <VCol cols="12">
-            <VTextField
-              label="Senha"
-              v-model="addNewUser.account.password"
-              :rules="formRules.password"
-              variant="outlined"
-              color="primary"
-              type="password"
-            />
-          </VCol>
-          <VCol cols="12">
-            <VTextField
               label="Nome"
-              v-model="addNewUser.name"
+              v-model="formModel.name"
               :rules="formRules.emptyField"
               variant="outlined"
               color="primary"
@@ -44,8 +24,8 @@
           <VCol cols="12">
             <VTextField
               label="Telefone"
-              v-model="addNewUser.tel"
-              :rules="formRules.tel"
+              v-model="formModel.tel"
+              :rules="formRules.username"
               variant="outlined"
               color="primary"
               name="tel"
@@ -56,7 +36,7 @@
           <VCol cols="12">
             <VTextField
               label="Endereço"
-              v-model="addNewUser.address"
+              v-model="formModel.address"
               :rules="formRules.emptyField"
               variant="outlined"
               color="primary"
@@ -66,7 +46,7 @@
           <VCol cols="12">
             <VTextField
               label="Data de Nascimento"
-              v-model="addNewUser.birthDate"
+              v-model="formModel.birthDate"
               variant="outlined"
               color="primary"
               name="birthDate"
@@ -74,9 +54,9 @@
             />
           </VCol>
           <VCol cols="12">
-            <v-select
+            <VSelect
               label="Gênero"
-              v-model="addNewUser.gender"
+              v-model="formModel.gender"
               :items="genderOptions"
               item-title="title"
               item-value="value"
@@ -109,33 +89,22 @@
 </template>
 
 <script setup>
-import {ref, watch} from 'vue';
+import {reactive, ref, watch} from 'vue';
 import {useUserStore} from "@/stores/user";
 
 const userStore = useUserStore();
-const emit = defineEmits(['form:cancel', 'form:saved']);
+const successEditMessage = ref(false);
+
+// Definindo as propriedades e emitindo eventos
 const props = defineProps({
-  showDialog: {
-    type: Boolean,
+  user: {
+    type: Object,
     required: true
   }
 });
+const emit = defineEmits(['form:cancel', 'form:saved']);
 
-const successSaveMessage = ref(false);
-
-const initialUserState = () => ({
-  account: {
-    email: '',
-    password: ''
-  },
-  name: '',
-  tel: '',
-  address: '',
-  birthDate: '',
-  gender: '',
-  profilePicture: ''
-});
-
+// Regras do formulário
 const formRules = ref({
   emptyField: [
     (value) => !!value || 'Campo obrigatório',
@@ -164,22 +133,31 @@ const genderOptions = ref([
   {title: 'Feminino', value: 'F'}
 ]);
 
+// Modelo reativo do formulário
 const profilePictureFile = ref(null);
-const addNewUser = ref(initialUserState());
+const formModel = reactive({
+  ...props.user
+});
 
 // Manipuladores de eventos
 const handleSaveItem = async (e) => {
   e.preventDefault();
 
-  const data = {...addNewUser.value};
+  const data = {...formModel};
+  const clientId = data.id;
 
   try {
     if (profilePictureFile.value) {
-      data.profilePicture = await userStore.uploadClientProfilePicture(profilePictureFile.value);
+      data.profilePicture = await userStore.updateClientProfilePicture(clientId, profilePictureFile.value);
     }
 
-    await userStore.registerClient(data);
-    successSaveMessage.value = true;
+    // Normalize fields.
+    delete data.id;
+    delete data.Account;
+    data.tel = data.tel.replace(/\D/g, '');
+
+    await userStore.updateClient(clientId, data);
+    successEditMessage.value = true;
     emit('form:saved')
   } catch (error) {
     console.error(error);
@@ -189,19 +167,13 @@ const handleSaveItem = async (e) => {
 };
 
 const handleCancelEdit = () => {
-  resetForm();
+  profilePictureFile.value = null;
   emit('form:cancel');
 };
 
-const resetForm = () => {
-  Object.assign(addNewUser.value, initialUserState());
+// Assistindo mudanças nas propriedades
+watch(props, () => {
   profilePictureFile.value = null;
-};
-
-// Redefine o formulário quando o diálogo é fechado
-watch(() => props.showDialog, (newVal) => {
-  if (!newVal) {
-    resetForm();
-  }
+  Object.assign(formModel, props.user);
 });
 </script>

@@ -19,6 +19,9 @@
         <template v-slot:[`item.birthDate`]="{ item }">
           <span>{{ formatDate(item.birthDate) }}</span>
         </template>
+        <template v-slot:[`item.tel`]="{ item }">
+          <span>{{ formatTel(item.tel) }}</span>
+        </template>
         <template v-slot:[`item.gender`]="{ item }">
           <span>{{ item.gender === 'M' ? 'Masculino' : 'Feminino' }}</span>
         </template>
@@ -38,12 +41,17 @@ const items = ref([]);
 const headers = reactive([
   {title: 'Foto', value: 'profilePicture'},
   {title: 'Nome', value: 'name', sortable: true},
-  {title: 'Email', value: 'account.email', sortable: true},
+  {title: 'Email', value: 'Account.email', sortable: true},
   {title: 'Telefone', value: 'tel', sortable: true},
   {title: 'Endereço', value: 'address', sortable: true},
   {title: 'Data de Nascimento', value: 'birthDate', sortable: true},
   {title: 'Gênero', value: 'gender', sortable: true}
 ]);
+
+const formatTel = (tel) => {
+  if (!tel) return '';
+  return `(${tel.slice(0, 2)}) ${tel.slice(2, 7)}-${tel.slice(7)}`;
+};
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -55,7 +63,7 @@ const formatDate = (dateString) => {
 }
 
 onMounted(async () => {
-  items.value = await userStore.getAllClientList("size=5&sort=createdAt,desc");
+  items.value = await userStore.getAllClientList("sort=createdAt&order=desc&limit=5");
   loading.value = false;
 });
 </script>

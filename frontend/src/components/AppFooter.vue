@@ -6,7 +6,7 @@
     </a>
 
     <div class="text-caption text-disabled" style="position: absolute; right: 16px;">
-      &copy; 2024 — Desenvolvido para 3º avaliação da disciplina de LBD |
+      &copy; 2024 — Desenvolvido para 3º avaliação da disciplina de FMDS |
       <a class="text-decoration-none on-surface footer-link" href="https://unemat.br" rel="noopener noreferrer" target="_blank">
         UNEMAT
       </a>

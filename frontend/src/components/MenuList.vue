@@ -21,7 +21,7 @@
             <template v-slot:prepend>
               <v-icon icon="mdi-logout"></v-icon>
             </template>
-            <v-list-item-title @click="logout()">Deslogar</v-list-item-title>
+            <v-list-item-title @click="logout()">Sair</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
