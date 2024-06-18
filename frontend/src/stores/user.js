@@ -76,9 +76,7 @@ export const useUserStore = defineStore("user", {
           });
 
         // Salva no backend o histórico da sessão do cliente.
-        await this.insertClientSelfSessionHistory({
-          date: new Date().toISOString().slice(0, 19).replace('T', ' '),
-        });
+        await this.insertClientSelfSessionHistory();
 
         router.push('/editarperfil')
       } else {
@@ -159,17 +157,16 @@ export const useUserStore = defineStore("user", {
       this.client.profilePicture = data.profilePicture
       return data.profilePicture;
     },
-    async insertClientSelfSessionHistory(sessionData) {
+    async insertClientSelfSessionHistory() {
       const response = await fetch(`${API_URL}/history/self/sessions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.user.accessToken}`,
         },
-        body: JSON.stringify(sessionData),
       });
 
-      if (!response.ok) {
+      if (response.status !== 201) {
         const data = await response.json();
         throw new Error(data.message);
       }
@@ -313,7 +310,7 @@ export const useUserStore = defineStore("user", {
       return data.profilePicture;
     },
     async getAllBrowsingHistoryCountByYear(year) {
-      const response = await fetch(`${API_URL}/history/browsing-count/${year}`, {
+      const response = await fetch(`${API_URL}/history/browsing/count/${year}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -324,10 +321,10 @@ export const useUserStore = defineStore("user", {
       if (!response.ok) {
         throw new Error(data.message);
       }
-      return data.content;
+      return data;
     },
     async getAllPurchasesHistoryCountByYear(year) {
-      const response = await fetch(`${API_URL}/history/purchases-count/${year}`, {
+      const response = await fetch(`${API_URL}/history/purchases/count/${year}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -338,10 +335,10 @@ export const useUserStore = defineStore("user", {
       if (!response.ok) {
         throw new Error(data.message);
       }
-      return data.content;
+      return data;
     },
     async getAllSessionsHistoryCountByYear(year) {
-      const response = await fetch(`${API_URL}/history/sessions-count/${year}`, {
+      const response = await fetch(`${API_URL}/history/sessions/count/${year}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -352,7 +349,7 @@ export const useUserStore = defineStore("user", {
       if (!response.ok) {
         throw new Error(data.message);
       }
-      return data.content;
+      return data;
     },
     async getAllClientRecentSessions() {
       const response = await fetch(`${API_URL}/history/sessions-recent`, {
@@ -366,7 +363,7 @@ export const useUserStore = defineStore("user", {
       if (!response.ok) {
         throw new Error(data.message);
       }
-      return data.content;
+      return data;
     }
   },
 });

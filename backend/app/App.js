@@ -5,6 +5,7 @@ import cors from 'cors';
 import './database/database.js';
 import accountRouter from "./router/accountRouter.js";
 import clientRouter from "./router/clientRouter.js";
+import historyRouter from "./router/historyRouter.js";
 
 const __dirname = getDirName(import.meta.url);
 
@@ -35,5 +36,6 @@ export default class GestaoStarlink {
     routes() {
         this.app.use(`${API_URL}/login/`, accountRouter);
         this.app.use(`${API_URL}/clients/`, clientRouter);
+        this.app.use(`${API_URL}/history/`, historyRouter);
     }
 }
