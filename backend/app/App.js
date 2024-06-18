@@ -8,6 +8,12 @@ import clientRouter from "./router/clientRouter.js";
 import historyRouter from "./router/historyRouter.js";
 
 const __dirname = getDirName(import.meta.url);
+const corsOptions = {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+};
 
 export default class GestaoStarlink {
     constructor() {
@@ -27,7 +33,7 @@ export default class GestaoStarlink {
     }
 
     middlewares() {
-        this.app.use(cors());
+        this.app.use(cors(corsOptions));
         this.app.use(express.urlencoded({extended: true}));
         this.app.use(express.json());
         this.app.use("/uploads", express.static(resolve(__dirname, '../uploads')));
