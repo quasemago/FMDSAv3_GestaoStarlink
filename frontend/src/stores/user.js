@@ -31,7 +31,7 @@ export const useUserStore = defineStore("user", {
       return this.client.name || this.user.username.split('@')[0];
     },
     getUserProfilePicture() {
-      return this.client.profilePicture ? `${HOST_URL}/uploads/${this.client.profilePicture}` : 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png';
+      return this.client.profilePicture ? `${HOST_URL}/uploads/${this.client.profilePicture}` : 'https://i.imgur.com/5apTItQ.png';
     },
     getClientProfile() {
       return this.client;
@@ -63,7 +63,7 @@ export const useUserStore = defineStore("user", {
       }
 
       // Esse usuário é um cliente, por tanto obtém os dados pessoais.
-      if (data.role === 'USER') {
+      if (this.user.role === 'USER') {
         await this.getClientSelfDetails()
           .then(value => {
             if (!value.ok) {
@@ -77,11 +77,9 @@ export const useUserStore = defineStore("user", {
 
         // Salva no backend o histórico da sessão do cliente.
         await this.insertClientSelfSessionHistory();
-
-        router.push('/editarperfil')
-      } else {
-        router.push('/dashboard');
       }
+
+      router.push(this.user.role === 'USER' ? '/editarperfil' : '/dashboard')
     },
     async signOut() {
       this.user = {};
@@ -90,7 +88,7 @@ export const useUserStore = defineStore("user", {
     },
     // Utils.
     formatProfilePicture(profilePicture) {
-      return profilePicture ? `${HOST_URL}/uploads/${profilePicture}` : 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png';
+      return profilePicture ? `${HOST_URL}/uploads/${profilePicture}` : 'https://i.imgur.com/5apTItQ.png';
     },
     // Client Actions.
     async getClientSelfDetails() {
@@ -309,36 +307,8 @@ export const useUserStore = defineStore("user", {
 
       return data.profilePicture;
     },
-    async getAllBrowsingHistoryCountByYear(year) {
-      const response = await fetch(`${API_URL}/history/browsing/count/${year}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.user.accessToken}`,
-        },
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-      return data;
-    },
-    async getAllPurchasesHistoryCountByYear(year) {
-      const response = await fetch(`${API_URL}/history/purchases/count/${year}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.user.accessToken}`,
-        },
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-      return data;
-    },
-    async getAllSessionsHistoryCountByYear(year) {
-      const response = await fetch(`${API_URL}/history/sessions/count/${year}`, {
+    async getAllClientHistoryTypeCountByYear(type, year) {
+      const response = await fetch(`${API_URL}/history/${type}/count/${year}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

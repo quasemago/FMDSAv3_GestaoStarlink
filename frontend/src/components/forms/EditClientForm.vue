@@ -90,6 +90,7 @@
 
 <script setup>
 import {reactive, ref, watch} from 'vue';
+import {normalizeTel} from "@/utils";
 import {useUserStore} from "@/stores/user";
 
 const userStore = useUserStore();
@@ -147,16 +148,22 @@ const handleSaveItem = async (e) => {
   const clientId = data.id;
 
   try {
+    // Cliente alterou a foto de perfil, portanto,
+    // tenta fazer a atualização dela antes dos dados.
     if (profilePictureFile.value) {
-      data.profilePicture = await userStore.updateClientProfilePicture(clientId, profilePictureFile.value);
+      await userStore.updateClientProfilePicture(clientId, profilePictureFile.value);
     }
 
     // Normalize fields.
-    delete data.id;
-    delete data.Account;
-    data.tel = data.tel.replace(/\D/g, '');
+    data.tel = normalizeTel(data.tel);
 
-    await userStore.updateClient(clientId, data);
+    await userStore.updateClient(clientId, {
+      name: data.name,
+      tel: data.tel,
+      address: data.address,
+      birthDate: data.birthDate,
+      gender: data.gender
+    });
     successEditMessage.value = true;
     emit('form:saved')
   } catch (error) {

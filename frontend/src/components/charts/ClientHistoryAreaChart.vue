@@ -25,9 +25,9 @@ const props = defineProps({
 const selectedYear = ref(props.selectedYear || 2023);
 
 const loadData = async () => {
-  const historyData = await userStore.getAllBrowsingHistoryCountByYear(selectedYear.value);
-  const purchasesData = await userStore.getAllPurchasesHistoryCountByYear(selectedYear.value);
-  const sessionsData = await userStore.getAllSessionsHistoryCountByYear(selectedYear.value);
+  const historyData = await userStore.getAllClientHistoryTypeCountByYear("browsing", selectedYear.value);
+  const purchasesData = await userStore.getAllClientHistoryTypeCountByYear("purchases", selectedYear.value);
+  const sessionsData = await userStore.getAllClientHistoryTypeCountByYear("sessions", selectedYear.value);
 
   const historySeriesData = new Array(12).fill(0);
   const purchasesSeriesData = new Array(12).fill(0);

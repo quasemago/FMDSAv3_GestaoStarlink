@@ -101,6 +101,7 @@
 
 <script setup>
 import {reactive, ref, watch} from 'vue';
+import {normalizeTel} from "@/utils";
 import {useUserStore} from "@/stores/user";
 
 const userStore = useUserStore();
@@ -163,20 +164,24 @@ const saveProfile = async () => {
     // Se a nova senha foi preenchida, tente atualizar primeiro a nova senha.
     if (data.newPassword && data.newPassword.length > 0) {
       await userStore.updateClientSelfPassword(data.newPassword);
-      delete data.newPassword;
     }
 
-    // Checa se o usuário alterou a foto do perfil.
+    // Checa se o usuário alterou a foto do perfil,
+    // e atualiza a foto do perfil se necessário.
     if (profilePictureFile.value) {
-      data.profilePicture = await userStore.updateClientSelfProfilePicture(profilePictureFile.value);
+      await userStore.updateClientSelfProfilePicture(profilePictureFile.value);
     }
 
     // Normalize fields.
-    delete data.newPassword;
-    delete data.profilePicture;
-    data.tel = data.tel.replace(/\D/g, '');
+    data.tel = normalizeTel(data.tel);
 
-    await userStore.updateClientSelfDetails(data);
+    await userStore.updateClientSelfDetails({
+      name: data.name,
+      tel: data.tel,
+      address: data.address,
+      birthDate: data.birthDate,
+      gender: data.gender
+    });
     successSaveMessage.value = true;
   } catch (error) {
     console.error(error);
