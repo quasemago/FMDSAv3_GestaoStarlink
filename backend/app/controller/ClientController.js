@@ -30,12 +30,19 @@ const clientUpdateSchema = Joi.object({
 });
 
 class ClientController {
-    // Admin methods.
+    /*
+     * Admin methods.
+     */
     async getAll(req, res) {
         try {
+            const sortParam = req.query.sort || 'id';
+            const orderParam = req.query.order || 'DESC';
+            const limitParam = req.query.limit ? parseInt(req.query.limit, 10) : null;
+
             const clients = await Client.findAll({
                 attributes: ['id', 'name', 'tel', 'address', 'birthDate', 'gender', 'profilePicture'],
-                order: [['id', 'DESC']],
+                order: [[sortParam, orderParam]],
+                limit: limitParam,
                 include: {
                     model: Account,
                     attributes: ['email', 'role']
@@ -222,7 +229,9 @@ class ClientController {
         }
     }
 
-    // Client methods.
+    /*
+     * Client methods.
+     */
     async getSelfDetails(req, res) {
         try {
             const client = await Client.findOne({
