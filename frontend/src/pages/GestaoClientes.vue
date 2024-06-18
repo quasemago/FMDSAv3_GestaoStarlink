@@ -120,6 +120,7 @@
 
 <script setup>
 import {reactive, ref} from 'vue';
+import {formatDate, formatTel} from "@/utils";
 import {useUserStore} from "@/stores/user";
 import EditClientForm from '@/components/forms/EditClientForm.vue';
 import AddClientForm from '@/components/forms/AddClientForm.vue';
@@ -181,17 +182,6 @@ const headers = reactive([
   {title: 'Gênero', value: 'gender', sortable: true},
   {title: 'Ações', value: 'action'},
 ]);
-
-const formatTel = (tel) => {
-  if (!tel) return '';
-  return `(${tel.slice(0, 2)}) ${tel.slice(2, 7)}-${tel.slice(7)}`;
-};
-
-const formatDate = (dateStr) => {
-  if (!dateStr) return '';
-  const [year, month, day] = dateStr.split('-');
-  return `${day}/${month}/${year}`;
-};
 
 const loadData = async () => {
   loading.value = true;

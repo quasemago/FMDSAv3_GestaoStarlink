@@ -22,6 +22,7 @@ global.app_db = new Sequelize(
         host: app_config.DATABASE_HOST,
         port: parseInt(app_config.DATABASE_PORT),
         timezone: '-04:00',
+        logging: process.env.NODE_ENV === 'development' ? console.log : false,
         dialectOptions: {
             charset: 'utf8',
         }

@@ -110,6 +110,7 @@
 
 <script setup>
 import {ref, watch} from 'vue';
+import {normalizeTel} from "@/utils";
 import {useUserStore} from "@/stores/user";
 
 const userStore = useUserStore();
@@ -174,8 +175,7 @@ const handleSaveItem = async (e) => {
   const data = {...addNewUser.value};
 
   try {
-    // Normalize tel.
-    data.tel = data.tel.replace(/\D/g, '');
+    data.tel = normalizeTel(data.tel);
 
     if (profilePictureFile.value) {
       data.profilePicture = profilePictureFile.value

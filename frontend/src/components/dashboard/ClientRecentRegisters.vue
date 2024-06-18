@@ -5,7 +5,7 @@
       <VDataTable
         :headers="headers"
         :items="items"
-        items-per-page="5"
+        items-per-page="6"
         :loading="loading"
         hover
         hide-default-footer
@@ -13,7 +13,7 @@
         <template v-slot:[`item.profilePicture`]="{ item }">
           <v-avatar class="ma-3">
             <VImg :src="String(userStore.formatProfilePicture(item.profilePicture))" v-if="item.profilePicture"/>
-            <VImg src="https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png" v-else/>
+            <VImg src="https://i.imgur.com/5apTItQ.png" v-else/>
           </v-avatar>
         </template>
         <template v-slot:[`item.birthDate`]="{ item }">
@@ -32,6 +32,7 @@
 
 <script setup>
 import {onMounted, reactive, ref} from 'vue';
+import {formatDate, formatTel} from "@/utils";
 import {useUserStore} from "@/stores/user";
 
 const userStore = useUserStore();
@@ -48,22 +49,8 @@ const headers = reactive([
   {title: 'Gênero', value: 'gender', sortable: true}
 ]);
 
-const formatTel = (tel) => {
-  if (!tel) return '';
-  return `(${tel.slice(0, 2)}) ${tel.slice(2, 7)}-${tel.slice(7)}`;
-};
-
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  });
-}
-
 onMounted(async () => {
-  items.value = await userStore.getAllClientList("sort=createdAt&order=desc&limit=5");
+  items.value = await userStore.getAllClientList("sort=createdAt&order=desc&limit=6");
   loading.value = false;
 });
 </script>
