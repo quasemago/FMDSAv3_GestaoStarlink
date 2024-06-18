@@ -7,7 +7,7 @@ import {getDirName} from "../helper/utils.js";
 
 const __dirname = getDirName(import.meta.url);
 
-const clientRequestSchema = Joi.object({
+const clientCreateSchema = Joi.object({
     account: Joi.object({
         email: Joi.string().email().required(),
         password: Joi.string().min(6).required()
@@ -16,8 +16,7 @@ const clientRequestSchema = Joi.object({
     tel: Joi.string().pattern(/^\d{11}$/).required(),
     address: Joi.string().required(),
     birthDate: Joi.date().iso().required(),
-    gender: Joi.string().valid('M', 'F').required(),
-    profilePicture: Joi.string().optional()
+    gender: Joi.string().valid('M', 'F').required()
 });
 
 const clientUpdateSchema = Joi.object({
@@ -25,8 +24,7 @@ const clientUpdateSchema = Joi.object({
     tel: Joi.string().pattern(/^\d{11}$/).required(),
     address: Joi.string().required(),
     birthDate: Joi.date().iso().required(),
-    gender: Joi.string().valid('M', 'F').required(),
-    profilePicture: Joi.string().optional()
+    gender: Joi.string().valid('M', 'F').required()
 });
 
 class ClientController {
@@ -90,7 +88,7 @@ class ClientController {
     }
 
     async create(req, res) {
-        const {error, value} = clientRequestSchema.validate(req.body);
+        const {error, value} = clientCreateSchema.validate(req.body);
         if (error) {
             return res.status(422).json({
                 message: 'Campo(s) inválido(s).',
@@ -133,7 +131,7 @@ class ClientController {
         }
     }
 
-    async update(req, res) {
+    async updateById(req, res) {
         const {id} = req.params;
         if (!id) {
             return res.status(422).json({
@@ -169,7 +167,7 @@ class ClientController {
         }
     }
 
-    async delete(req, res) {
+    async deleteById(req, res) {
         const {id} = req.params;
         if (!id) {
             return res.status(422).json({
@@ -193,7 +191,7 @@ class ClientController {
         }
     }
 
-    async updateProfilePicture(req, res) {
+    async updateProfilePictureById(req, res) {
         try {
             const {id} = req.params;
             if (!id) {

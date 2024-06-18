@@ -6,6 +6,7 @@ import LocationHistory from "../database/models/history/LocationHistory.js";
 import SessionsHistory from "../database/models/history/SessionsHistory.js";
 import OnlineActivity from "../database/models/OnlineActivity.js";
 import {DateTime} from "luxon";
+
 class HistoryController {
     async saveSelfSession(req, res) {
         const accountId = req.userId;
@@ -22,7 +23,7 @@ class HistoryController {
             }
             const date = DateTime.now().setZone('America/Cuiaba').toISO()
                 .slice(0,19).replace('T', ' ');
-            console.log(date);
+
             await SessionsHistory.create({date:date, online_activity_id: onlineActivity.id});
             res.status(201).send();
         } catch (err) {
