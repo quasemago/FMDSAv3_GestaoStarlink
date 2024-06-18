@@ -94,6 +94,27 @@ class HistoryController {
             res.status(400).json({message: err.message});
         }
     }
+
+    async saveSelfSession(req, res) {
+        const accountId = req.userId;
+        try {
+            const client = await Client.findOne({where: {account_id: accountId}});
+            if (!client) {
+                res.status(404).json({message: "Cliente não encontrado!"});
+                return;
+            }
+            const [onlineActivity, created]  = await OnlineActivity.findOrCreate({where: {client_id: client.id}});
+            if (!onlineActivity) {
+                res.status(404).json({message: "Atividade online não encontrada para o cliente " + client.id});
+                return;
+            }
+            const {date} = req.body;
+            await SessionsHistory.create({date, online_activity_id: onlineActivity.id});
+            res.status(201).send();
+        } catch (err) {
+            res.status(400).json({message: err.message});
+        }
+    }
 }
 
 export default new HistoryController();
