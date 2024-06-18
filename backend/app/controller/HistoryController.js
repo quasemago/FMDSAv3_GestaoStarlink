@@ -13,26 +13,41 @@ class HistoryController {
         try {
             const onlineActivity = await OnlineActivity.findOne({where: {client_id: id}});
             if (!onlineActivity) {
-                res.status(404).json({message: "Atividade online não encontrada para o cliente " + id});
+                res.status(200).json([]);
                 return;
             }
             let history;
 
             switch (type) {
                 case "browsing":
-                    history = await BrowsingHistory.findAll({where: {online_activity_id: onlineActivity.id}});
+                    history = await BrowsingHistory.findAll({
+                        where: {online_activity_id: onlineActivity.id},
+                        order: [['date', 'DESC']]
+                    });
                     break;
                 case "interests":
-                    history = await InterestsHistory.findAll({where: {online_activity_id: onlineActivity.id}});
+                    history = await InterestsHistory.findAll({
+                        where: {online_activity_id: onlineActivity.id},
+                        order: [['date', 'DESC']]
+                    });
                     break;
                 case "purchases":
-                    history = await PurchasesHistory.findAll({where: {online_activity_id: onlineActivity.id}});
+                    history = await PurchasesHistory.findAll({
+                        where: {online_activity_id: onlineActivity.id},
+                        order: [['date', 'DESC']]
+                    });
                     break;
                 case "location":
-                    history = await LocationHistory.findAll({where: {online_activity_id: onlineActivity.id}});
+                    history = await LocationHistory.findAll({
+                        where: {online_activity_id: onlineActivity.id},
+                        order: [['date', 'DESC']]
+                    });
                     break;
                 case "sessions":
-                    history = await SessionsHistory.findAll({where: {online_activity_id: onlineActivity.id}});
+                    history = await SessionsHistory.findAll({
+                        where: {online_activity_id: onlineActivity.id},
+                        order: [['date', 'DESC']]
+                    });
                     break;
                 default:
                     res.status(400).json({message: "Tipo de histórico inválido!"});
@@ -44,8 +59,40 @@ class HistoryController {
         }
     }
 
-    deleteById(req, res) {
+    async deleteById(req, res) {
+        const {id, type} = req.params;
+        try {
+            const onlineActivity = await OnlineActivity.findOne({where: {client_id: id}});
+            if (!onlineActivity) {
+                res.status(404).json({message: "Atividade online não encontrada para o cliente " + id});
+                return;
+            }
+            let history;
 
+            switch (type) {
+                case "browsing":
+                    history = await BrowsingHistory.destroy({where: {online_activity_id: onlineActivity.id}});
+                    break;
+                case "interests":
+                    history = await InterestsHistory.destroy({where: {online_activity_id: onlineActivity.id}});
+                    break;
+                case "purchases":
+                    history = await PurchasesHistory.destroy({where: {online_activity_id: onlineActivity.id}});
+                    break;
+                case "location":
+                    history = await LocationHistory.destroy({where: {online_activity_id: onlineActivity.id}});
+                    break;
+                case "sessions":
+                    history = await SessionsHistory.destroy({where: {online_activity_id: onlineActivity.id}});
+                    break;
+                default:
+                    res.status(400).json({message: "Tipo de histórico inválido!"});
+                    return;
+            }
+            res.status(204).send();
+        } catch (err) {
+            res.status(400).json({message: err.message});
+        }
     }
 }
 
