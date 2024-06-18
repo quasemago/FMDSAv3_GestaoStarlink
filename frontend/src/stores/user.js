@@ -175,8 +175,8 @@ export const useUserStore = defineStore("user", {
       }
     },
     // Admin Actions.
-    async getAllClientList() {
-      const response = await fetch(`${API_URL}/clients`, {
+    async getAllClientList(params) {
+      const response = await fetch(`${API_URL}/clients?${params}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

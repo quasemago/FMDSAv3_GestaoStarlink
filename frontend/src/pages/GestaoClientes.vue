@@ -195,7 +195,7 @@ const formatDate = (dateStr) => {
 
 const loadData = async () => {
   loading.value = true;
-  await userStore.getAllClientList()
+  await userStore.getAllClientList("")
     .then((response) => {
       originalUsers.value = response;
       filteredUsers.value = response;

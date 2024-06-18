@@ -55,7 +55,7 @@ const formatDate = (dateString) => {
 }
 
 onMounted(async () => {
-  items.value = await userStore.getAllClientList();
+  items.value = await userStore.getAllClientList("sort=createdAt&order=desc&limit=5");
   loading.value = false;
 });
 </script>
